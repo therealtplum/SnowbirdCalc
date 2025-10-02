@@ -97,6 +97,7 @@ struct LearnView: View {
     @State private var searchText = ""
     @State private var filter: Filter = .all
     @State private var staticEntries: [LearnEntry] = .loadFromBundle() // JSON-backed
+    @Environment(\.openURL) private var openURL
     @AppStorage("LearnView.favorites") private var favoriteIDsData: Data = Data()
     @AppStorage("LearnView.notes") private var notesData: Data = Data()
 
@@ -243,8 +244,25 @@ struct LearnView: View {
 
     @ViewBuilder
     private func row(_ entry: LearnEntry) -> some View {
-        // Notes route to editor; others use detail/link view
-        if entry.kind == .note {
+        // If it has a URL and it's a link or opportunity, open the browser directly.
+        if let url = entry.url, (entry.kind == .link || entry.kind == .opportunity) {
+            Button {
+                openURL(url)
+            } label: {
+                listRowLabel(entry)
+            }
+            .buttonStyle(.plain)
+            .contextMenu {
+                // Still give quick access to details (tags/content) if needed
+                NavigationLink(destination: LearnDetailView(entry: entry,
+                                                            isFavorite: favoriteBinding(for: entry.id))) {
+                    Label("View Details", systemImage: "info.circle")
+                }
+                ShareLink(item: url) { Label("Share Link", systemImage: "square.and.arrow.up") }
+            }
+        }
+        // Notes go to the editor
+        else if entry.kind == .note {
             NavigationLink {
                 LearnNoteEditor(
                     entry: bindingForNote(id: entry.id),
@@ -258,7 +276,9 @@ struct LearnView: View {
                     Label("Delete", systemImage: "trash")
                 }
             }
-        } else {
+        }
+        // Everything else goes to the read-only detail
+        else {
             NavigationLink {
                 LearnDetailView(entry: entry,
                                 isFavorite: favoriteBinding(for: entry.id))
