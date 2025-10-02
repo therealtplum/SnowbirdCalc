@@ -96,11 +96,9 @@ struct LearnView: View {
 
     @State private var searchText = ""
     @State private var filter: Filter = .all
-    @State private var staticEntries: [LearnEntry] = .loadFromBundle() // from JSON
-    @State private var opps: [LearnEntry] = [] // seeded once from code
+    @State private var staticEntries: [LearnEntry] = .loadFromBundle() // JSON-backed
     @AppStorage("LearnView.favorites") private var favoriteIDsData: Data = Data()
     @AppStorage("LearnView.notes") private var notesData: Data = Data()
-    @AppStorage("LearnView.oppsSeeded") private var oppsSeeded: Bool = false
 
     // Favorites persistence
     private var favoriteIDs: Set<UUID> {
@@ -116,17 +114,18 @@ struct LearnView: View {
 
     // Combined source for filtering
     private var allEntries: [LearnEntry] {
-        staticEntries + notes + opps
+        staticEntries + notes
     }
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
+                // Compact, scrollable filter chips
                 FilterBar(selection: $filter)
 
                 // List
                 List {
-                    // Optional Favorites section (for All only, exclude notes edit context)
+                    // Favorites (All only)
                     let favs = filteredEntries.filter { favoriteIDs.contains($0.id) }
                     if !favs.isEmpty && searchText.isEmpty && filter == .all {
                         Section("Favorites") {
@@ -136,7 +135,7 @@ struct LearnView: View {
                         }
                     }
 
-                    // Notes section (with swipe-to-delete and reordering if desired)
+                    // Notes section (with swipe-to-delete)
                     if filter == .notes {
                         Section("My Notes") {
                             ForEach(notes, id: \.id) { entry in
@@ -171,6 +170,12 @@ struct LearnView: View {
                             Label("New note", systemImage: "square.and.pencil")
                         }
 
+                        Button {
+                            staticEntries = .loadFromBundle()
+                        } label: {
+                            Label("Reload Data", systemImage: "arrow.triangle.2.circlepath")
+                        }
+
                         ShareLink(item: URL(string: "https://github.com/")!,
                                   subject: Text("Snowbird Learn Resources"),
                                   message: Text("Quick reference links and notes.")) {
@@ -181,9 +186,6 @@ struct LearnView: View {
                     }
                     .accessibilityLabel("More actions")
                 }
-            }
-            .onAppear {
-                seedOpportunitiesIfNeeded()
             }
         }
     }
@@ -320,7 +322,6 @@ struct LearnView: View {
         current.insert(
             LearnEntry(
                 title: "Untitled Note",
-                // subtitle: "Tap to edit",   // ← remove this line
                 kind: .note,
                 content: """
                 # Untitled Note
@@ -360,79 +361,6 @@ struct LearnView: View {
                 }
             }
         )
-    }
-
-    // MARK: - Opportunities: seed once
-
-    private func seedOpportunitiesIfNeeded() {
-        guard !oppsSeeded else { return }
-        opps = seededOpportunities()
-        oppsSeeded = true
-    }
-
-    private func reseedOpportunities() {
-        opps = seededOpportunities()
-    }
-
-    private func seededOpportunities() -> [LearnEntry] {
-        [
-            LearnEntry(
-                title: "AcreTrader",
-                subtitle: "Farmland investing platform",
-                kind: .opportunity,
-                content: "Invest in U.S. farmland through curated offerings; long-term, income + appreciation potential.",
-                url: URL(string: "https://acretrader.com/"),
-                tags: ["real assets", "farmland", "income"]
-            ),
-            LearnEntry(
-                title: "Royalty Exchange (Auctions)",
-                subtitle: "Music royalty auctions",
-                kind: .opportunity,
-                content: "Bid on music royalty streams; returns tied to catalog performance.",
-                url: URL(string: "https://auctions.royaltyexchange.com/overview"),
-                tags: ["royalties", "music", "cash flow"]
-            ),
-            LearnEntry(
-                title: "CrowdStreet",
-                subtitle: "Commercial real estate marketplace",
-                kind: .opportunity,
-                content: "Access CRE deals across sponsors, strategies, and geographies.",
-                url: URL(string: "https://crowdstreet.com/"),
-                tags: ["real estate", "CRE", "marketplace"]
-            ),
-            LearnEntry(
-                title: "EnergyNet",
-                subtitle: "Oil & gas asset auctions",
-                kind: .opportunity,
-                content: "Online marketplace for upstream oil & gas interests and related assets.",
-                url: URL(string: "https://www.energynet.com/"),
-                tags: ["energy", "oil & gas", "auctions"]
-            ),
-            LearnEntry(
-                title: "LandGate",
-                subtitle: "Land & resource valuations and listings",
-                kind: .opportunity,
-                content: "Data platform and marketplace for land, minerals, and renewables siting.",
-                url: URL(string: "https://www.landgate.com/"),
-                tags: ["land", "data", "renewables"]
-            ),
-            LearnEntry(
-                title: "U.S. Mineral Exchange",
-                subtitle: "Mineral rights marketplace",
-                kind: .opportunity,
-                content: "Buy/sell mineral rights and royalties with education resources.",
-                url: URL(string: "https://www.usmineralexchange.com/"),
-                tags: ["minerals", "royalties", "energy"]
-            ),
-            LearnEntry(
-                title: "Pecan Estimate",
-                subtitle: "Orchard valuation & yield tools",
-                kind: .opportunity,
-                content: "Niche tool for pecan orchards—useful in ag investing due diligence.",
-                url: URL(string: "https://pecanestimate.com/"),
-                tags: ["agriculture", "tools", "valuation"]
-            )
-        ]
     }
 }
 
@@ -515,7 +443,7 @@ private struct LearnNoteEditor: View {
     var onDelete: () -> Void
 
     @FocusState private var focused: Field?
-    enum Field { case title, subtitle, content }
+    enum Field { case title, content }
 
     var body: some View {
         Form {
@@ -550,7 +478,6 @@ private struct LearnNoteEditor: View {
             }
         }
         .onAppear {
-            // Focus title on first open if empty
             if entry.title.trimmingCharacters(in: .whitespaces).isEmpty {
                 focused = .title
             }
@@ -578,6 +505,8 @@ private struct TagsView: View {
         }
     }
 }
+
+// MARK: - Filter Chip Bar
 
 private struct FilterBar: View {
     @Binding var selection: LearnView.Filter
@@ -620,6 +549,7 @@ private extension Binding where Value == String {
         )
     }
 }
+
 // MARK: - Preview
 
 #Preview {

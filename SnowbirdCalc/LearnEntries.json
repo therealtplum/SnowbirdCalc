@@ -387,5 +387,61 @@
       "kind": "Guides",
       "content": "Pick a handful: revenue growth, gross margin, operating cash flow, CAC/LTV if applicable, AR days, runway. Set targets and review monthly.",
       "tags": ["metrics", "ops"]
+    },
+    {
+      "title": "AcreTrader",
+      "subtitle": "Farmland investing platform",
+      "kind": "Opportunities",
+      "content": "Invest in U.S. farmland through curated offerings; thesis is uncorrelated returns via land appreciation + lease/operating income.",
+      "url": "https://acretrader.com/",
+      "tags": ["real assets", "farmland", "income"]
+    },
+    {
+      "title": "Royalty Exchange (Auctions)",
+      "subtitle": "Music royalty auctions",
+      "kind": "Opportunities",
+      "content": "Bid on recorded-music royalty streams. Returns tied to catalog performance; cash flows can be lumpy.",
+      "url": "https://auctions.royaltyexchange.com/overview",
+      "tags": ["royalties", "music", "cash flow"]
+    },
+    {
+      "title": "CrowdStreet",
+      "subtitle": "Commercial real estate marketplace",
+      "kind": "Opportunities",
+      "content": "Direct-access CRE deals from multiple sponsors across strategies and geographies.",
+      "url": "https://crowdstreet.com/",
+      "tags": ["real estate", "CRE", "marketplace"]
+    },
+    {
+      "title": "EnergyNet",
+      "subtitle": "Oil & gas asset auctions",
+      "kind": "Opportunities",
+      "content": "Online marketplace for upstream oil & gas working interests, royalties, and related assets.",
+      "url": "https://www.energynet.com/",
+      "tags": ["energy", "oil & gas", "auctions"]
+    },
+    {
+      "title": "LandGate",
+      "subtitle": "Land & resource valuations and listings",
+      "kind": "Opportunities",
+      "content": "Data + marketplace for land, minerals, solar/wind siting, and carbon; useful for valuation and marketing.",
+      "url": "https://www.landgate.com/",
+      "tags": ["land", "data", "renewables"]
+    },
+    {
+      "title": "U.S. Mineral Exchange",
+      "subtitle": "Mineral rights marketplace",
+      "kind": "Opportunities",
+      "content": "Buy/sell mineral rights and royalties with education resources and broker support.",
+      "url": "https://www.usmineralexchange.com/",
+      "tags": ["minerals", "royalties", "energy"]
+    },
+    {
+      "title": "Pecan Estimate",
+      "subtitle": "Oil & gas valuations",
+      "kind": "Opportunities",
+      "content": "Fast, easy, and affordable oil & gas value estimates.",
+      "url": "https://pecanestimate.com/",
+      "tags": ["agriculture", "tools", "valuation", "minerals", "royalties", "energy"]
     }
 ]
