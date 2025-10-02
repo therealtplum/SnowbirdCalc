@@ -1,286 +1,391 @@
 [
-  {
-    "title": "Accounts Payable",
-    "subtitle": "Money a business owes to suppliers",
-    "kind": "Glossary",
-    "content": "Accounts Payable (AP) represent short-term obligations a company owes to vendors for goods or services purchased on credit.",
-    "tags": ["accounting", "liabilities"]
-  },
-  {
-    "title": "Accounts Receivable",
-    "subtitle": "Money owed by customers",
-    "kind": "Glossary",
-    "content": "Accounts Receivable (AR) are amounts due from customers for goods or services delivered on credit.",
-    "tags": ["accounting", "assets"]
-  },
-  {
-    "title": "Accrual Accounting",
-    "subtitle": "Record revenue/expenses when earned/incurred",
-    "kind": "Glossary",
-    "content": "Accrual accounting recognizes income when earned and expenses when incurred, regardless of cash movement.",
-    "tags": ["accounting", "GAAP"]
-  },
-  {
-    "title": "Balance Sheet",
-    "subtitle": "Assets = Liabilities + Equity",
-    "kind": "Glossary",
-    "content": "The balance sheet shows a company’s financial position at a point in time using the accounting equation.",
-    "tags": ["finance", "reporting"]
-  },
-  {
-    "title": "Cash Flow Statement",
-    "subtitle": "Operating, investing, and financing cash",
-    "kind": "Glossary",
-    "content": "Reports cash movements across operations, investing activities, and financing activities over a period.",
-    "tags": ["finance", "reporting"]
-  },
-  {
-    "title": "COGS",
-    "subtitle": "Cost of goods sold",
-    "kind": "Glossary",
-    "content": "Direct costs attributable to producing goods sold by a company (materials, direct labor).",
-    "tags": ["accounting", "gross margin"]
-  },
-  {
-    "title": "EBITDA",
-    "subtitle": "Operating performance proxy",
-    "kind": "Glossary",
-    "content": "Earnings before interest, taxes, depreciation, and amortization; a measure of core operating profitability.",
-    "tags": ["finance", "profitability"]
-  },
-  {
-    "title": "Working Capital",
-    "subtitle": "Current assets minus current liabilities",
-    "kind": "Glossary",
-    "content": "Indicates short-term liquidity and ability to meet near-term obligations.",
-    "tags": ["liquidity", "operations"]
-  },
-
-  {
-    "title": "Accredited Investor",
-    "subtitle": "Eligibility standard for private investments",
-    "kind": "Glossary",
-    "content": "Meets income or net-worth thresholds to invest in certain private offerings.",
-    "tags": ["investing", "SEC"]
-  },
-  {
-    "title": "Alpha",
-    "subtitle": "Excess return over a benchmark",
-    "kind": "Glossary",
-    "content": "Measures performance relative to risk-adjusted expectations of a benchmark index.",
-    "tags": ["performance", "portfolio"]
-  },
-  {
-    "title": "Beta",
-    "subtitle": "Market risk sensitivity",
-    "kind": "Glossary",
-    "content": "Indicates how much a security moves with the overall market; >1 is more volatile than the market.",
-    "tags": ["risk", "volatility"]
-  },
-  {
-    "title": "Diversification",
-    "subtitle": "Spread risk across assets",
-    "kind": "Glossary",
-    "content": "Holding uncorrelated assets reduces exposure to any single source of risk.",
-    "tags": ["risk", "portfolio"]
-  },
-  {
-    "title": "ETF",
-    "subtitle": "Exchange-traded fund",
-    "kind": "Glossary",
-    "content": "A pooled investment that tracks an index or theme and trades like a stock.",
-    "tags": ["funds", "indexing"]
-  },
-  {
-    "title": "Index Fund",
-    "subtitle": "Passive fund tracking an index",
-    "kind": "Glossary",
-    "content": "Seeks to replicate the performance of a market index with low turnover and fees.",
-    "tags": ["passive", "fees"]
-  },
-  {
-    "title": "P/E Ratio",
-    "subtitle": "Price-to-earnings multiple",
-    "kind": "Glossary",
-    "content": "Stock price divided by earnings per share; used to gauge valuation vs. earnings.",
-    "tags": ["valuation", "equities"]
-  },
-  {
-    "title": "Yield Curve",
-    "subtitle": "Bond yields by maturity",
-    "kind": "Glossary",
-    "content": "Plots interest rates of similar-quality bonds across maturities; shape can signal economic outlook.",
-    "tags": ["rates", "fixed income"]
-  },
-
-  {
-    "title": "1099 Form",
-    "subtitle": "Reports non-wage income",
-    "kind": "Glossary",
-    "content": "Form 1099 reports income such as freelance earnings, interest, or dividends.",
-    "tags": ["tax", "IRS"]
-  },
-  {
-    "title": "AMT",
-    "subtitle": "Alternative Minimum Tax",
-    "kind": "Glossary",
-    "content": "Parallel tax system ensuring certain taxpayers pay at least a minimum amount of tax.",
-    "tags": ["tax", "individual"]
-  },
-  {
-    "title": "Basis",
-    "subtitle": "Tax basis in property",
-    "kind": "Glossary",
-    "content": "Generally cost plus improvements minus depreciation; determines gain or loss on sale.",
-    "tags": ["tax", "capital gains"]
-  },
-  {
-    "title": "Capital Gains Tax",
-    "subtitle": "Tax on profit from asset sales",
-    "kind": "Glossary",
-    "content": "Applies to profit realized on the sale of capital assets; rates vary by holding period.",
-    "tags": ["tax", "investing"]
-  },
-  {
-    "title": "Depreciation Recapture",
-    "subtitle": "Tax on prior deductions at sale",
-    "kind": "Glossary",
-    "content": "Portion of gain attributable to depreciation deductions may be taxed at ordinary or special rates.",
-    "tags": ["tax", "real estate"]
-  },
-  {
-    "title": "Marginal Tax Rate",
-    "subtitle": "Tax rate on last dollar earned",
-    "kind": "Glossary",
-    "content": "The rate applied to your top bracket—not your average tax rate.",
-    "tags": ["tax", "rates"]
-  },
-  {
-    "title": "QBI Deduction",
-    "subtitle": "Section 199A up to 20% deduction",
-    "kind": "Glossary",
-    "content": "Deduction for qualified business income from pass-through entities, subject to limits.",
-    "tags": ["199A", "pass-through"]
-  },
-  {
-    "title": "Schedule K-1",
-    "subtitle": "Reports owner’s share of pass-through income",
-    "kind": "Glossary",
-    "content": "Issued to partners and S-corp shareholders; details income, deductions, and credits.",
-    "tags": ["tax", "K1"]
-  },
-
-  {
-    "title": "401(k) Plan",
-    "subtitle": "Employer-sponsored retirement plan",
-    "kind": "Glossary",
-    "content": "Allows pre-tax or Roth contributions; often includes employer matching.",
-    "tags": ["retirement", "benefits"]
-  },
-  {
-    "title": "403(b) Plan",
-    "subtitle": "Retirement plan for nonprofits/education",
-    "kind": "Glossary",
-    "content": "Similar to a 401(k) but for certain public schools and tax-exempt organizations.",
-    "tags": ["retirement", "benefits"]
-  },
-  {
-    "title": "Catch-Up Contributions",
-    "subtitle": "Extra contributions age 50+",
-    "kind": "Glossary",
-    "content": "Older workers can contribute above standard limits to 401(k)s and IRAs.",
-    "tags": ["retirement", "limits"]
-  },
-  {
-    "title": "Defined Benefit Plan",
-    "subtitle": "Traditional pension",
-    "kind": "Glossary",
-    "content": "Promises a specified benefit at retirement, often based on salary and years of service.",
-    "tags": ["pension", "employer"]
-  },
-  {
-    "title": "Defined Contribution Plan",
-    "subtitle": "Employee-directed accounts",
-    "kind": "Glossary",
-    "content": "Specifies contributions, not payout; retirement value depends on investment performance.",
-    "tags": ["401k", "retirement"]
-  },
-  {
-    "title": "HSA",
-    "subtitle": "Health Savings Account",
-    "kind": "Glossary",
-    "content": "Triple tax-advantaged account for medical expenses (deductible contributions, tax-free growth and withdrawals for qualified expenses).",
-    "tags": ["benefits", "healthcare"]
-  },
-  {
-    "title": "Roth IRA",
-    "subtitle": "After-tax IRA with tax-free withdrawals",
-    "kind": "Glossary",
-    "content": "Contributions are post-tax; qualified withdrawals are tax-free.",
-    "tags": ["retirement", "IRA"]
-  },
-  {
-    "title": "Vesting Schedule",
-    "subtitle": "When contributions/equity become yours",
-    "kind": "Glossary",
-    "content": "Defines ownership timing for employer contributions or equity grants (e.g., cliff and graded).",
-    "tags": ["benefits", "equity"]
-  },
-
-  {
-    "title": "Angel Investor",
-    "subtitle": "Wealthy individual investing early",
-    "kind": "Glossary",
-    "content": "Provides seed capital, often with mentorship, in exchange for equity or convertible notes.",
-    "tags": ["startup", "funding"]
-  },
-  {
-    "title": "Burn Rate",
-    "subtitle": "Monthly net cash outflow",
-    "kind": "Glossary",
-    "content": "How quickly a startup uses cash; runway = cash balance ÷ burn rate.",
-    "tags": ["cash", "runway"]
-  },
-  {
-    "title": "Cap Table",
-    "subtitle": "Record of ownership and dilution",
-    "kind": "Glossary",
-    "content": "Tracks founders, investors, option pools, and security types with fully diluted percentages.",
-    "tags": ["equity", "governance"]
-  },
-  {
-    "title": "Convertible Note",
-    "subtitle": "Debt that converts into equity",
-    "kind": "Glossary",
-    "content": "Typically converts in a future round, often with a discount and/or valuation cap.",
-    "tags": ["financing", "seed"]
-  },
-  {
-    "title": "Down Round",
-    "subtitle": "New valuation below prior round",
-    "kind": "Glossary",
-    "content": "Financing at a lower valuation than before; often triggers anti-dilution provisions.",
-    "tags": ["valuation", "fundraising"]
-  },
-  {
-    "title": "SAFE",
-    "subtitle": "Simple Agreement for Future Equity",
-    "kind": "Glossary",
-    "content": "A contract granting future equity on trigger events, usually with a valuation cap/discount.",
-    "tags": ["YC", "financing"]
-  },
-  {
-    "title": "Term Sheet",
-    "subtitle": "Non-binding summary of deal terms",
-    "kind": "Glossary",
-    "content": "Outlines valuation, security type, investor rights, and closing conditions.",
-    "tags": ["VC", "negotiation"]
-  },
-  {
-    "title": "Unicorn",
-    "subtitle": "Private company valued ≥ $1B",
-    "kind": "Glossary",
-    "content": "Shorthand for highly valued venture-backed startups.",
-    "tags": ["valuation", "startup"]
-  }
+    {
+        "title": "Accounts Payable",
+        "subtitle": "Money a business owes to suppliers",
+        "kind": "Glossary",
+        "content": "Accounts Payable (AP) represent short-term obligations a company owes to vendors for goods or services purchased on credit.",
+        "tags": ["accounting", "liabilities"]
+    },
+    {
+        "title": "Accounts Receivable",
+        "subtitle": "Money owed by customers",
+        "kind": "Glossary",
+        "content": "Accounts Receivable (AR) are amounts due from customers for goods or services delivered on credit.",
+        "tags": ["accounting", "assets"]
+    },
+    {
+        "title": "Accrual Accounting",
+        "subtitle": "Record revenue/expenses when earned/incurred",
+        "kind": "Glossary",
+        "content": "Accrual accounting recognizes income when earned and expenses when incurred, regardless of cash movement.",
+        "tags": ["accounting", "GAAP"]
+    },
+    {
+        "title": "Balance Sheet",
+        "subtitle": "Assets = Liabilities + Equity",
+        "kind": "Glossary",
+        "content": "The balance sheet shows a company’s financial position at a point in time using the accounting equation.",
+        "tags": ["finance", "reporting"]
+    },
+    {
+        "title": "Cash Flow Statement",
+        "subtitle": "Operating, investing, and financing cash",
+        "kind": "Glossary",
+        "content": "Reports cash movements across operations, investing activities, and financing activities over a period.",
+        "tags": ["finance", "reporting"]
+    },
+    {
+        "title": "COGS",
+        "subtitle": "Cost of goods sold",
+        "kind": "Glossary",
+        "content": "Direct costs attributable to producing goods sold by a company (materials, direct labor).",
+        "tags": ["accounting", "gross margin"]
+    },
+    {
+        "title": "EBITDA",
+        "subtitle": "Operating performance proxy",
+        "kind": "Glossary",
+        "content": "Earnings before interest, taxes, depreciation, and amortization; a measure of core operating profitability.",
+        "tags": ["finance", "profitability"]
+    },
+    {
+        "title": "Working Capital",
+        "subtitle": "Current assets minus current liabilities",
+        "kind": "Glossary",
+        "content": "Indicates short-term liquidity and ability to meet near-term obligations.",
+        "tags": ["liquidity", "operations"]
+    },
+    
+    {
+        "title": "Accredited Investor",
+        "subtitle": "Eligibility standard for private investments",
+        "kind": "Glossary",
+        "content": "Meets income or net-worth thresholds to invest in certain private offerings.",
+        "tags": ["investing", "SEC"]
+    },
+    {
+        "title": "Alpha",
+        "subtitle": "Excess return over a benchmark",
+        "kind": "Glossary",
+        "content": "Measures performance relative to risk-adjusted expectations of a benchmark index.",
+        "tags": ["performance", "portfolio"]
+    },
+    {
+        "title": "Beta",
+        "subtitle": "Market risk sensitivity",
+        "kind": "Glossary",
+        "content": "Indicates how much a security moves with the overall market; >1 is more volatile than the market.",
+        "tags": ["risk", "volatility"]
+    },
+    {
+        "title": "Diversification",
+        "subtitle": "Spread risk across assets",
+        "kind": "Glossary",
+        "content": "Holding uncorrelated assets reduces exposure to any single source of risk.",
+        "tags": ["risk", "portfolio"]
+    },
+    {
+        "title": "ETF",
+        "subtitle": "Exchange-traded fund",
+        "kind": "Glossary",
+        "content": "A pooled investment that tracks an index or theme and trades like a stock.",
+        "tags": ["funds", "indexing"]
+    },
+    {
+        "title": "Index Fund",
+        "subtitle": "Passive fund tracking an index",
+        "kind": "Glossary",
+        "content": "Seeks to replicate the performance of a market index with low turnover and fees.",
+        "tags": ["passive", "fees"]
+    },
+    {
+        "title": "P/E Ratio",
+        "subtitle": "Price-to-earnings multiple",
+        "kind": "Glossary",
+        "content": "Stock price divided by earnings per share; used to gauge valuation vs. earnings.",
+        "tags": ["valuation", "equities"]
+    },
+    {
+        "title": "Yield Curve",
+        "subtitle": "Bond yields by maturity",
+        "kind": "Glossary",
+        "content": "Plots interest rates of similar-quality bonds across maturities; shape can signal economic outlook.",
+        "tags": ["rates", "fixed income"]
+    },
+    
+    {
+        "title": "1099 Form",
+        "subtitle": "Reports non-wage income",
+        "kind": "Glossary",
+        "content": "Form 1099 reports income such as freelance earnings, interest, or dividends.",
+        "tags": ["tax", "IRS"]
+    },
+    {
+        "title": "AMT",
+        "subtitle": "Alternative Minimum Tax",
+        "kind": "Glossary",
+        "content": "Parallel tax system ensuring certain taxpayers pay at least a minimum amount of tax.",
+        "tags": ["tax", "individual"]
+    },
+    {
+        "title": "Basis",
+        "subtitle": "Tax basis in property",
+        "kind": "Glossary",
+        "content": "Generally cost plus improvements minus depreciation; determines gain or loss on sale.",
+        "tags": ["tax", "capital gains"]
+    },
+    {
+        "title": "Capital Gains Tax",
+        "subtitle": "Tax on profit from asset sales",
+        "kind": "Glossary",
+        "content": "Applies to profit realized on the sale of capital assets; rates vary by holding period.",
+        "tags": ["tax", "investing"]
+    },
+    {
+        "title": "Depreciation Recapture",
+        "subtitle": "Tax on prior deductions at sale",
+        "kind": "Glossary",
+        "content": "Portion of gain attributable to depreciation deductions may be taxed at ordinary or special rates.",
+        "tags": ["tax", "real estate"]
+    },
+    {
+        "title": "Marginal Tax Rate",
+        "subtitle": "Tax rate on last dollar earned",
+        "kind": "Glossary",
+        "content": "The rate applied to your top bracket—not your average tax rate.",
+        "tags": ["tax", "rates"]
+    },
+    {
+        "title": "QBI Deduction",
+        "subtitle": "Section 199A up to 20% deduction",
+        "kind": "Glossary",
+        "content": "Deduction for qualified business income from pass-through entities, subject to limits.",
+        "tags": ["199A", "pass-through"]
+    },
+    {
+        "title": "Schedule K-1",
+        "subtitle": "Reports owner’s share of pass-through income",
+        "kind": "Glossary",
+        "content": "Issued to partners and S-corp shareholders; details income, deductions, and credits.",
+        "tags": ["tax", "K1"]
+    },
+    
+    {
+        "title": "401(k) Plan",
+        "subtitle": "Employer-sponsored retirement plan",
+        "kind": "Glossary",
+        "content": "Allows pre-tax or Roth contributions; often includes employer matching.",
+        "tags": ["retirement", "benefits"]
+    },
+    {
+        "title": "403(b) Plan",
+        "subtitle": "Retirement plan for nonprofits/education",
+        "kind": "Glossary",
+        "content": "Similar to a 401(k) but for certain public schools and tax-exempt organizations.",
+        "tags": ["retirement", "benefits"]
+    },
+    {
+        "title": "Catch-Up Contributions",
+        "subtitle": "Extra contributions age 50+",
+        "kind": "Glossary",
+        "content": "Older workers can contribute above standard limits to 401(k)s and IRAs.",
+        "tags": ["retirement", "limits"]
+    },
+    {
+        "title": "Defined Benefit Plan",
+        "subtitle": "Traditional pension",
+        "kind": "Glossary",
+        "content": "Promises a specified benefit at retirement, often based on salary and years of service.",
+        "tags": ["pension", "employer"]
+    },
+    {
+        "title": "Defined Contribution Plan",
+        "subtitle": "Employee-directed accounts",
+        "kind": "Glossary",
+        "content": "Specifies contributions, not payout; retirement value depends on investment performance.",
+        "tags": ["401k", "retirement"]
+    },
+    {
+        "title": "HSA",
+        "subtitle": "Health Savings Account",
+        "kind": "Glossary",
+        "content": "Triple tax-advantaged account for medical expenses (deductible contributions, tax-free growth and withdrawals for qualified expenses).",
+        "tags": ["benefits", "healthcare"]
+    },
+    {
+        "title": "Roth IRA",
+        "subtitle": "After-tax IRA with tax-free withdrawals",
+        "kind": "Glossary",
+        "content": "Contributions are post-tax; qualified withdrawals are tax-free.",
+        "tags": ["retirement", "IRA"]
+    },
+    {
+        "title": "Vesting Schedule",
+        "subtitle": "When contributions/equity become yours",
+        "kind": "Glossary",
+        "content": "Defines ownership timing for employer contributions or equity grants (e.g., cliff and graded).",
+        "tags": ["benefits", "equity"]
+    },
+    
+    {
+        "title": "Angel Investor",
+        "subtitle": "Wealthy individual investing early",
+        "kind": "Glossary",
+        "content": "Provides seed capital, often with mentorship, in exchange for equity or convertible notes.",
+        "tags": ["startup", "funding"]
+    },
+    {
+        "title": "Burn Rate",
+        "subtitle": "Monthly net cash outflow",
+        "kind": "Glossary",
+        "content": "How quickly a startup uses cash; runway = cash balance ÷ burn rate.",
+        "tags": ["cash", "runway"]
+    },
+    {
+        "title": "Cap Table",
+        "subtitle": "Record of ownership and dilution",
+        "kind": "Glossary",
+        "content": "Tracks founders, investors, option pools, and security types with fully diluted percentages.",
+        "tags": ["equity", "governance"]
+    },
+    {
+        "title": "Convertible Note",
+        "subtitle": "Debt that converts into equity",
+        "kind": "Glossary",
+        "content": "Typically converts in a future round, often with a discount and/or valuation cap.",
+        "tags": ["financing", "seed"]
+    },
+    {
+        "title": "Down Round",
+        "subtitle": "New valuation below prior round",
+        "kind": "Glossary",
+        "content": "Financing at a lower valuation than before; often triggers anti-dilution provisions.",
+        "tags": ["valuation", "fundraising"]
+    },
+    {
+        "title": "SAFE",
+        "subtitle": "Simple Agreement for Future Equity",
+        "kind": "Glossary",
+        "content": "A contract granting future equity on trigger events, usually with a valuation cap/discount.",
+        "tags": ["YC", "financing"]
+    },
+    {
+        "title": "Term Sheet",
+        "subtitle": "Non-binding summary of deal terms",
+        "kind": "Glossary",
+        "content": "Outlines valuation, security type, investor rights, and closing conditions.",
+        "tags": ["VC", "negotiation"]
+    },
+    {
+        "title": "Unicorn",
+        "subtitle": "Private company valued ≥ $1B",
+        "kind": "Glossary",
+        "content": "Shorthand for highly valued venture-backed startups.",
+        "tags": ["valuation", "startup"]
+    },
+    {
+        "title": "IRS — Retirement Plans (Pub 560)",
+        "subtitle": "SEP, SIMPLE, and qualified plan rules",
+        "kind": "Helpful Links",
+        "url": "https://www.irs.gov/publications/p560",
+        "tags": ["IRS", "retirement"]
+    },
+    {
+        "title": "SBA — Funding Programs",
+        "subtitle": "Loans, grants, investment capital",
+        "kind": "Helpful Links",
+        "url": "https://www.sba.gov/funding-programs",
+        "tags": ["SBA", "funding"]
+    },
+    {
+        "title": "Investopedia — Small Business Finance",
+        "subtitle": "Plain-English primers",
+        "kind": "Helpful Links",
+        "url": "https://www.investopedia.com/small-business-4689743",
+        "tags": ["reference", "basics"]
+    },
+    {
+        "title": "SEC — Investor.gov",
+        "subtitle": "Official investor education",
+        "kind": "Helpful Links",
+        "url": "https://www.investor.gov/",
+        "tags": ["SEC", "investing"]
+    },
+    {
+        "title": "BLS — Inflation & CPI",
+        "subtitle": "Price indexes and data",
+        "kind": "Helpful Links",
+        "url": "https://www.bls.gov/cpi/",
+        "tags": ["macro", "inflation"]
+    },
+    {
+      "title": "How Employer Match Actually Works",
+      "subtitle": "Turn percentages into dollars",
+      "kind": "Guides",
+      "content": "Employer match formulas are based on eligible compensation. Example: 100% match up to 4% means $100k salary → $4k if the employee defers 4%. Watch for per-pay-period limits and year-end true-ups.",
+      "tags": ["401k", "match", "payroll"]
+    },
+    {
+      "title": "Allocating HoldCo Capital to Subsidiaries",
+      "subtitle": "Simple playbook before you over-optimize",
+      "kind": "Guides",
+      "content": "1) Set a reserve for runway & taxes. 2) Rank subs by expected return/risk. 3) Deploy in tranches with milestones. 4) Track allocated vs. realized returns separately.",
+      "tags": ["capital", "allocation", "subsidiaries"]
+    },
+    {
+      "title": "Cash vs. Accrual Accounting",
+      "subtitle": "Pick the method that fits operations",
+      "kind": "Guides",
+      "content": "Cash recognizes when money moves. Accrual recognizes when earned/incurred. Accrual gives cleaner margins and period matching; cash is simpler but can mislead on timing.",
+      "tags": ["accounting", "methods"]
+    },
+    {
+      "title": "Reading the Cash Flow Statement",
+      "subtitle": "Operating, investing, financing",
+      "kind": "Guides",
+      "content": "Operating cash shows core health, investing shows capex & asset sales, financing shows debt/equity flows. Positive operating cash with sensible investing/financing is the goal.",
+      "tags": ["reporting", "cashflow"]
+    },
+    {
+      "title": "Setting Up a SIMPLE IRA or SEP",
+      "subtitle": "Solo & small-team retirement options",
+      "kind": "Guides",
+      "content": "SIMPLE: lower admin, employee deferrals + employer match or nonelective. SEP: employer-funded only, flexible contributions based on % of comp. Consider eligibility and deadlines.",
+      "tags": ["retirement", "small business"]
+    },
+    {
+      "title": "Owner Compensation Basics",
+      "subtitle": "W-2, draws, and distributions",
+      "kind": "Guides",
+      "content": "S-Corp: reasonable W-2 wages + distributions. Partnership/LLC: guaranteed payments vs. distributions, tracked through capital accounts. Keep payroll and owner draws distinct.",
+      "tags": ["compensation", "LLC", "S-Corp"]
+    },
+    {
+      "title": "Budgeting & Runway",
+      "subtitle": "From burn rate to months of cash",
+      "kind": "Guides",
+      "content": "Burn rate = average monthly net cash outflow. Runway = cash ÷ burn. Stress-test with downside cases and set triggers for expense cuts or capital raises.",
+      "tags": ["planning", "cash"]
+    },
+    {
+      "title": "Choosing an Entity Type (High Level)",
+      "subtitle": "LLC, S-Corp, or C-Corp?",
+      "kind": "Guides",
+      "content": "LLC: flexible, pass-through. S-Corp: pass-through with payroll formalities. C-Corp: venture-friendly, double taxation but QSBS potential. Coordinate with tax/legal advisors.",
+      "tags": ["entity", "tax"]
+    },
+    {
+      "title": "Cap Table 101",
+      "subtitle": "Equity classes, options, dilution",
+      "kind": "Guides",
+      "content": "Track common, preferred, options, warrants. Model pre/post-money, option pool refreshes, and dilution from SAFEs/notes converting.",
+      "tags": ["equity", "startup"]
+    },
+    {
+      "title": "KPIs to Watch",
+      "subtitle": "What actually matters monthly",
+      "kind": "Guides",
+      "content": "Pick a handful: revenue growth, gross margin, operating cash flow, CAC/LTV if applicable, AR days, runway. Set targets and review monthly.",
+      "tags": ["metrics", "ops"]
+    }
 ]
