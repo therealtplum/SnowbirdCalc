@@ -333,7 +333,7 @@ struct LearnView: View {
         current.insert(
             LearnEntry(
                 title: "Untitled Note",
-                subtitle: "Tap to edit",
+                // subtitle: "Tap to edit",   // ← remove this line
                 kind: .note,
                 content: """
                 # Untitled Note
@@ -345,7 +345,6 @@ struct LearnView: View {
             at: 0
         )
         notes = current
-        // Switch to Notes tab automatically
         filter = .notes
     }
 
@@ -536,9 +535,6 @@ private struct LearnNoteEditor: View {
             Section("Title") {
                 TextField("Title", text: $entry.title)
                     .focused($focused, equals: .title)
-
-                TextField("Subtitle", text: Binding($entry.subtitle, replacingNilWith: ""))
-                    .focused($focused, equals: .subtitle)
             }
 
             Section("Content") {
