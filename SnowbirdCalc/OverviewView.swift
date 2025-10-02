@@ -86,7 +86,7 @@ struct OverviewView: View {
                                         VStack(alignment: .leading, spacing: 4) {
                                             Text(s.name)
                                                 .fontWeight(.medium)
-                                            Text("\(s.subs.count) subsidiaries • Deferral \(pct(s.employeeDeferral))")
+                                            Text("\(s.subs.count) subsidiaries • Deferral \(dollar(s.employeeDeferral))")
                                                 .font(.caption)
                                                 .foregroundStyle(.secondary)
                                         }
