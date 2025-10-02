@@ -1,0 +1,16 @@
+[
+  {
+    "title": "Accredited Investor",
+    "subtitle": "SEC definition for private investment eligibility",
+    "kind": "Glossary",
+    "content": "An individual who meets income ($200k/yr) or net worth ($1M excl. primary residence) tests allowing them to invest in private placements.",
+    "tags": ["SEC", "investing", "compliance"]
+  },
+  {
+    "title": "Amortization",
+    "subtitle": "Spreading cost of an asset or loan",
+    "kind": "Glossary",
+    "content": "Amortization is the process of gradually reducing a debt or intangible asset over time through scheduled payments or expense recognition.",
+    "tags": ["finance", "accounting"]
+  }
+]
