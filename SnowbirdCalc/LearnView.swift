@@ -178,12 +178,6 @@ struct LearnView: View {
                             Label("New note", systemImage: "square.and.pencil")
                         }
 
-                        Button {
-                            reseedOpportunities()
-                        } label: {
-                            Label("Reseed Opportunities", systemImage: "arrow.triangle.2.circlepath")
-                        }
-
                         ShareLink(item: URL(string: "https://github.com/")!,
                                   subject: Text("Snowbird Learn Resources"),
                                   message: Text("Quick reference links and notes.")) {
@@ -588,6 +582,35 @@ private struct TagsView: View {
                         .accessibilityLabel("Tag \(tag)")
                 }
             }
+        }
+    }
+}
+
+private struct FilterBar: View {
+    @Binding var selection: LearnView.Filter
+    let allCases = LearnView.Filter.allCases
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(allCases) { f in
+                    Button {
+                        selection = f
+                    } label: {
+                        Text(f.rawValue)
+                            .font(.subheadline.weight(.semibold))
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(selection == f ? Color.accentColor.opacity(0.15) : Color.secondary.opacity(0.12), in: Capsule())
+                            .overlay(
+                                Capsule().stroke(selection == f ? Color.accentColor : Color.clear, lineWidth: 1)
+                            )
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal)
+            .padding(.top, 8)
         }
     }
 }
