@@ -483,5 +483,145 @@
       "content": "Access diversified CRE offerings across syndications, funds, and debt structures (generally for accredited investors).",
       "url": "https://www.equitymultiple.com/",
       "tags": ["real estate", "CRE", "syndication"]
+    },
+    {
+      "title": "Monthly Close Checklist",
+      "subtitle": "Tighten books in 90 minutes",
+      "kind": "Guides",
+      "content": "Reconcile bank/credit cards, tie AR/AP agings to GL, review uncategorized, accrue payroll/benefits, post depreciation, review variance vs. budget, export snapshot (BS/IS/CF) for the archive.",
+      "tags": ["accounting", "close", "ops"]
+    },
+    {
+      "title": "Chart of Accounts Starter",
+      "subtitle": "Simple, scalable COA",
+      "kind": "Guides",
+      "content": "Keep it flat. Revenue by line, COGS by direct cost, OpEx grouped by People/Go-To-Market/Ops/General. Avoid vendor-based accounts; use tags/classes for projects.",
+      "tags": ["accounting", "setup"]
+    },
+    {
+      "title": "12-Month Operating Budget",
+      "subtitle": "From top-line to runway",
+      "kind": "Guides",
+      "content": "Build drivers: units × price, gross margin %, headcount plan with start dates, fixed vs. variable OpEx. Add seasonality, then produce P&L, cash flow, and runway.",
+      "tags": ["planning", "budget", "runway"]
+    },
+    {
+      "title": "Cash Forecast (13-Week)",
+      "subtitle": "Short-term liquidity view",
+      "kind": "Guides",
+      "content": "List weekly inflows (receipts, expected closes) vs. outflows (payroll, rent, vendors, debt service). Color-code must-pay vs. deferrable. Update every Friday.",
+      "tags": ["cash", "liquidity", "forecast"]
+    },
+    {
+      "title": "AR Collection Playbook",
+      "subtitle": "Speed up cash conversion",
+      "kind": "Guides",
+      "content": "Clear terms on invoices, send statements weekly, dunning at 7/14/30 days, offer ACH/card links, escalate with late fees/holds, and measure DSO monthly.",
+      "tags": ["AR", "cashflow", "ops"]
+    },
+    {
+      "title": "AP & Vendor Management",
+      "subtitle": "Control spend without friction",
+      "kind": "Guides",
+      "content": "Centralize approvals, use virtual cards with limits, negotiate net terms, batch payments weekly, and track top-10 vendors by spend and criticality.",
+      "tags": ["AP", "spend", "ops"]
+    },
+    {
+      "title": "Treasury & Cash Sweeps",
+      "subtitle": "Safety and yield on idle cash",
+      "kind": "Guides",
+      "content": "Target $ coverage for payroll and reserve, sweep excess to MMF or T-bill ladder, diversify banks, and document signers and access controls.",
+      "tags": ["treasury", "cash", "risk"]
+    },
+    {
+      "title": "Entity & Tax Elections",
+      "subtitle": "LLC vs. S-Corp vs. C-Corp (operational)",
+      "kind": "Guides",
+      "content": "LLC: flexible pass-through. S-Corp: payroll + distributions, good for active owners. C-Corp: venture, QSBS potential, double tax. Note state nexus and franchise taxes.",
+      "tags": ["entity", "tax", "setup"]
+    },
+    {
+      "title": "Reasonable Compensation (S-Corp)",
+      "subtitle": "Set W-2 for owners",
+      "kind": "Guides",
+      "content": "Benchmark role, hours, and market comp; document rationale; split between W-2 and distributions; revisit annually or after major scope changes.",
+      "tags": ["S-Corp", "compensation", "payroll"]
+    },
+    {
+      "title": "Quarterly Estimated Taxes",
+      "subtitle": "Avoid penalties, smooth cash",
+      "kind": "Guides",
+      "content": "Safe harbor: 100–110% of prior-year tax or 90% of current-year. Calendar reminders for 4 due dates. Track federal/state separately.",
+      "tags": ["tax", "estimates", "cash"]
+    },
+    {
+      "title": "Retirement Plan Selection",
+      "subtitle": "SEP vs. SIMPLE vs. 401(k)",
+      "kind": "Guides",
+      "content": "Solo/very small: SEP (employer-only) or SIMPLE (lower admin). Growing team: 401(k) with safe harbor. Consider eligibility, match formulas, and admin burden.",
+      "tags": ["retirement", "benefits", "HR"]
+    },
+    {
+      "title": "Comp Plans & Equity",
+      "subtitle": "Align incentives without chaos",
+      "kind": "Guides",
+      "content": "Use salary bands, targeted bonuses with clear KPIs, and time-based + milestone equity. Keep option pool plans simple and well-documented.",
+      "tags": ["compensation", "equity", "HR"]
+    },
+    {
+      "title": "Capital Allocation Framework",
+      "subtitle": "Where each dollar goes next",
+      "kind": "Guides",
+      "content": "Rank uses by ROI/IRR, risk, and strategic fit: pay down debt, defend core, fund high-IRR projects, then opportunistic bets. Stage funding with gates.",
+      "tags": ["capital", "allocation", "strategy"]
+    },
+    {
+      "title": "Debt Toolkit",
+      "subtitle": "LOC, term loan, SBA, vendor credit",
+      "kind": "Guides",
+      "content": "Map need (working capital vs. asset) to instrument. Compare rate, covenants, amortization, collateral. Model coverage ratios before signing.",
+      "tags": ["debt", "financing"]
+    },
+    {
+      "title": "SAFE vs. Convertible Note",
+      "subtitle": "Choose your pre-priced bridge",
+      "kind": "Guides",
+      "content": "SAFE: simpler, no interest/maturity; use cap/discount. Notes: interest + maturity, investor protections. Model dilution at multiple cap scenarios.",
+      "tags": ["financing", "startup", "equity"]
+    },
+    {
+      "title": "Real Estate Underwriting Basics",
+      "subtitle": "Quick screen of CRE deals",
+      "kind": "Guides",
+      "content": "Underwrite NOI, cap rate, DSCR, exit assumptions, sponsor track record, fee load, and downside scenarios. Compare to public REIT comps.",
+      "tags": ["real estate", "underwriting"]
+    },
+    {
+      "title": "Alt Deal Diligence Checklist",
+      "subtitle": "Before wiring a dime",
+      "kind": "Guides",
+      "content": "Validate sponsor incentives, fee stack, custodians, historicals, auditing, scenario analysis, and liquidity/lockups. Write an IC memo every time.",
+      "tags": ["diligence", "alternatives", "risk"]
+    },
+    {
+      "title": "KPI Dashboard Setup",
+      "subtitle": "What the weekly sheet shows",
+      "kind": "Guides",
+      "content": "Pick 5–8 metrics: revenue, GM%, Opex, Op cash, AR days, pipeline, active projects. Define owners, targets, and cadence. Keep one sheet of truth.",
+      "tags": ["KPIs", "ops", "reporting"]
+    },
+    {
+      "title": "Scenario Planning",
+      "subtitle": "Base / Upside / Downside",
+      "kind": "Guides",
+      "content": "Create three cases, tie to hiring gates and spend triggers. Pre-decide actions at thresholds (e.g., <3 months runway). Update monthly.",
+      "tags": ["planning", "risk", "budget"]
+    },
+    {
+      "title": "Data Room Basics",
+      "subtitle": "Be diligence-ready",
+      "kind": "Guides",
+      "content": "Organize corporate docs, cap table, financials, tax returns, contracts, HR, IP, and policies. Use consistent naming and a read-only share.",
+      "tags": ["ops", "fundraising", "governance"]
     }
 ]
