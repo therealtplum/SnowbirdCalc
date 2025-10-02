@@ -27,7 +27,10 @@ struct OverviewView: View {
 
                             // High-level rates / settings
                             Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 8) {
-                                GridRow { LabelValue("Employee Deferral", pct(s.employeeDeferral)) ; LabelValue("Employer Match", pct(s.employerPct)) }
+                                GridRow {
+                                    LabelValue("Employee Deferral", dollar(s.employeeDeferral))
+                                    LabelValue("Employer Match", pct(s.employerPct))
+                                }
                                 GridRow { LabelValue("Ordinary Rate",       pct(s.ordinaryRate))     ; LabelValue("LTCG Rate",        pct(s.ltcgRate)) }
                                 GridRow { LabelValue("NIIT Rate",           pct(s.niitRate))         ; LabelValue("Subsidiaries",     "\(s.subs.count)") }
                             }
@@ -130,4 +133,11 @@ private func pct(_ x: Double) -> String {
     // Heuristic: if value <= 1 treat as 0–1, else assume 0–100
     let v = (x <= 1.0) ? x : (x / 100.0)
     return v.formatted(.percent.precision(.fractionLength(1)))
+}
+
+func dollar(_ value: Double) -> String {
+    let formatter = NumberFormatter()
+    formatter.numberStyle = .currency
+    formatter.locale = Locale(identifier: "en_US") // or whatever locale
+    return formatter.string(from: NSNumber(value: value)) ?? "$0"
 }
