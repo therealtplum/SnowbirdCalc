@@ -28,8 +28,8 @@ struct LearnEntry: Identifiable, Hashable, Codable {
     var title: String
     var subtitle: String?
     var kind: Kind
-    var content: String?     // Markdown for glossary/guide
-    var url: URL?            // For external links
+    var content: String?
+    var url: URL?
     var tags: [String] = []
 
     init(id: UUID = UUID(),
@@ -47,90 +47,35 @@ struct LearnEntry: Identifiable, Hashable, Codable {
         self.url = url
         self.tags = tags
     }
+
+    // Make JSON 'id' optional; auto-generate if missing.
+    enum CodingKeys: String, CodingKey {
+        case id, title, subtitle, kind, content, url, tags
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        self.id       = try c.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
+        self.title    = try c.decode(String.self, forKey: .title)
+        self.subtitle = try c.decodeIfPresent(String.self, forKey: .subtitle)
+        self.kind     = try c.decode(Kind.self, forKey: .kind)
+        self.content  = try c.decodeIfPresent(String.self, forKey: .content)
+        self.url      = try c.decodeIfPresent(URL.self, forKey: .url)
+        self.tags     = try c.decodeIfPresent([String].self, forKey: .tags) ?? []
+    }
 }
 
 // MARK: - Sample Data (edit freely)
-
-private extension Array where Element == LearnEntry {
-    static let sample: [LearnEntry] = [
-        // Glossary
-        .init(title: "Safe Harbor 401(k)",
-              subtitle: "Match designs that avoid ADP/ACP testing",
-              kind: .glossary,
-              content: """
-              **Safe Harbor 401(k)** plans use employer contributions that meet certain formulas (e.g., Basic or Enhanced Match) so the plan automatically satisfies **ADP/ACP** testing. Common designs:
-
-              - *Basic:* 100% match on 3% of deferrals + 50% on the next 2%.
-              - *Enhanced:* 100% match up to 4% (or more) of pay.
-
-              Employers must give an annual notice and make contributions that are immediately vested.
-              """,
-              tags: ["401k", "compliance", "match"]),
-
-        .init(title: "Capital Account",
-              subtitle: "Tracks each owner’s equity in a partnership/LLC",
-              kind: .glossary,
-              content: """
-              A **capital account** records each owner's contributions, allocations of profit/loss, and distributions. It’s not the same as cash. Capital accounts often follow tax-basis rules and tie to Schedule K-1 reporting.
-              """,
-              tags: ["LLC", "partnership", "equity"]),
-
-        .init(title: "Qualified Business Income (QBI)",
-              subtitle: "Section 199A 20% deduction basics",
-              kind: .glossary,
-              content: """
-              **QBI** is net qualified business income from a pass-through entity that may be eligible for up to a **20% deduction** (IRC §199A), subject to wage/property limits and phase-outs for specified service businesses.
-              """,
-              tags: ["tax", "199A", "pass-through"]),
-
-        // Guides
-        .init(title: "How Employer Match Actually Works",
-              subtitle: "Translating percentages to dollars",
-              kind: .guide,
-              content: """
-              ### TL;DR
-              Employer match formulas are percentages of **eligible compensation**, not of account balance.
-
-              **Example:** If pay is $100,000 and the plan matches 100% up to 4%,
-              - Employee defers 4% ($4,000)
-              - Employer matches $4,000
-              If the employee defers 2% ($2,000), the match is $2,000.
-
-              **Gotchas**
-              - Payroll caps (per pay-period vs. annual).
-              - True-up contributions at year-end.
-              - Immediate vs. graded vesting.
-              """,
-              tags: ["401k", "match", "payroll"]),
-
-        .init(title: "Allocating HoldCo Capital to Subsidiaries",
-              subtitle: "Simple heuristics before you over-optimize",
-              kind: .guide,
-              content: """
-              1. **Set a reserve** for runway and taxes.
-              2. **Rank subs** by expected return and risk.
-              3. **Stage deployments** (tranches) with milestones.
-              4. **Track** allocations and realized performance separately.
-              """,
-              tags: ["capital", "allocation", "subsidiaries"]),
-
-        // Helpful Links
-        .init(title: "Investopedia — Small Business Finance",
-              subtitle: "Plain-English finance & accounting primers",
-              kind: .link,
-              url: URL(string: "https://www.investopedia.com/small-business-4689743"),
-              tags: ["reference", "basics"]),
-        .init(title: "IRS — Retirement Plans (Pub 560)",
-              subtitle: "SEP, SIMPLE, and qualified plan rules (IRS)",
-              kind: .link,
-              url: URL(string: "https://www.irs.gov/publications/p560"),
-              tags: ["IRS", "retirement"]),
-        .init(title: "SBA — Funding Programs",
-              subtitle: "Loans, grants, and investment capital",
-              kind: .link,
-              url: URL(string: "https://www.sba.gov/funding-programs"),
-              tags: ["SBA", "funding"])
-    ]
+extension Array where Element == LearnEntry {
+    static func loadFromBundle() -> [LearnEntry] {
+        guard let url = Bundle.main.url(forResource: "LearnEntries", withExtension: "json"),
+              let data = try? Data(contentsOf: url),
+              let decoded = try? JSONDecoder().decode([LearnEntry].self, from: data)
+        else {
+            return []
+        }
+        return decoded
+    }
 }
 
 // MARK: - View
@@ -147,7 +92,7 @@ struct LearnView: View {
 
     @State private var searchText = ""
     @State private var filter: Filter = .all
-    @State private var entries: [LearnEntry] = .sample
+    @State private var entries: [LearnEntry] = .loadFromBundle()
     @AppStorage("LearnView.favorites") private var favoriteIDsData: Data = Data()
 
     /// Single, correct declaration (with nonmutating setter).
