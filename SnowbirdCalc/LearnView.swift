@@ -14,12 +14,16 @@ struct LearnEntry: Identifiable, Hashable, Codable {
         case glossary = "Glossary"
         case guide = "Guides"
         case link = "Helpful Links"
+        case note = "My Notes"
+        case opportunity = "Opportunities"
 
         var icon: String {
             switch self {
-            case .glossary: return "book.closed"
-            case .guide:    return "lightbulb"
-            case .link:     return "link"
+            case .glossary:    return "book.closed"
+            case .guide:       return "lightbulb"
+            case .link:        return "link"
+            case .note:        return "note.text"
+            case .opportunity: return "briefcase"
             }
         }
     }
@@ -28,8 +32,8 @@ struct LearnEntry: Identifiable, Hashable, Codable {
     var title: String
     var subtitle: String?
     var kind: Kind
-    var content: String?
-    var url: URL?
+    var content: String?     // Markdown for glossary/guide/note
+    var url: URL?            // For external links (Helpful Links / Opportunities)
     var tags: [String] = []
 
     init(id: UUID = UUID(),
@@ -48,11 +52,8 @@ struct LearnEntry: Identifiable, Hashable, Codable {
         self.tags = tags
     }
 
-    // Make JSON 'id' optional; auto-generate if missing.
-    enum CodingKeys: String, CodingKey {
-        case id, title, subtitle, kind, content, url, tags
-    }
-
+    // Make JSON 'id' optional when decoding
+    enum CodingKeys: String, CodingKey { case id, title, subtitle, kind, content, url, tags }
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         self.id       = try c.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
@@ -65,7 +66,8 @@ struct LearnEntry: Identifiable, Hashable, Codable {
     }
 }
 
-// MARK: - Sample Data (edit freely)
+// MARK: - Bundle Loader
+
 extension Array where Element == LearnEntry {
     static func loadFromBundle() -> [LearnEntry] {
         guard let url = Bundle.main.url(forResource: "LearnEntries", withExtension: "json"),
@@ -86,23 +88,35 @@ struct LearnView: View {
         case glossary = "Glossary"
         case guides = "Guides"
         case links = "Helpful Links"
+        case notes = "My Notes"
+        case opportunities = "Opportunities"
 
         var id: String { rawValue }
     }
 
     @State private var searchText = ""
     @State private var filter: Filter = .all
-    @State private var entries: [LearnEntry] = .loadFromBundle()
+    @State private var staticEntries: [LearnEntry] = .loadFromBundle() // from JSON
+    @State private var opps: [LearnEntry] = [] // seeded once from code
     @AppStorage("LearnView.favorites") private var favoriteIDsData: Data = Data()
+    @AppStorage("LearnView.notes") private var notesData: Data = Data()
+    @AppStorage("LearnView.oppsSeeded") private var oppsSeeded: Bool = false
 
-    /// Single, correct declaration (with nonmutating setter).
+    // Favorites persistence
     private var favoriteIDs: Set<UUID> {
-        get {
-            (try? JSONDecoder().decode(Set<UUID>.self, from: favoriteIDsData)) ?? []
-        }
-        nonmutating set {
-            favoriteIDsData = (try? JSONEncoder().encode(newValue)) ?? Data()
-        }
+        get { (try? JSONDecoder().decode(Set<UUID>.self, from: favoriteIDsData)) ?? [] }
+        nonmutating set { favoriteIDsData = (try? JSONEncoder().encode(newValue)) ?? Data() }
+    }
+
+    // Notes persistence (array of LearnEntry with kind == .note)
+    private var notes: [LearnEntry] {
+        get { (try? JSONDecoder().decode([LearnEntry].self, from: notesData)) ?? [] }
+        nonmutating set { notesData = (try? JSONEncoder().encode(newValue)) ?? Data() }
+    }
+
+    // Combined source for filtering
+    private var allEntries: [LearnEntry] {
+        staticEntries + notes + opps
     }
 
     var body: some View {
@@ -119,7 +133,7 @@ struct LearnView: View {
 
                 // List
                 List {
-                    // Optional Favorites section
+                    // Optional Favorites section (for All only, exclude notes edit context)
                     let favs = filteredEntries.filter { favoriteIDs.contains($0.id) }
                     if !favs.isEmpty && searchText.isEmpty && filter == .all {
                         Section("Favorites") {
@@ -129,9 +143,19 @@ struct LearnView: View {
                         }
                     }
 
-                    // Group by kind
-                    ForEach(LearnEntry.Kind.allCases, id: \.self) { kind in
-                        let items = filteredEntries.filter { $0.kind == kind && !favoriteIDs.contains($0.id) }
+                    // Notes section (with swipe-to-delete and reordering if desired)
+                    if filter == .notes {
+                        Section("My Notes") {
+                            ForEach(notes, id: \.id) { entry in
+                                row(entry) // routes to editor
+                            }
+                            .onDelete(perform: deleteNotes)
+                        }
+                    }
+
+                    // Group by kind for other sections
+                    ForEach(sectionKindsToShow, id: \.self) { kind in
+                        let items = filteredEntries.filter { $0.kind == kind && !(filter == .notes && kind == .note) }
                         if !items.isEmpty {
                             Section(kind.rawValue) {
                                 ForEach(items) { entry in
@@ -149,9 +173,15 @@ struct LearnView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         Button {
-                            addYourOwnTemplate()
+                            addNote()
                         } label: {
-                            Label("Add your own note", systemImage: "plus")
+                            Label("New note", systemImage: "square.and.pencil")
+                        }
+
+                        Button {
+                            reseedOpportunities()
+                        } label: {
+                            Label("Reseed Opportunities", systemImage: "arrow.triangle.2.circlepath")
                         }
 
                         ShareLink(item: URL(string: "https://github.com/")!,
@@ -165,78 +195,122 @@ struct LearnView: View {
                     .accessibilityLabel("More actions")
                 }
             }
-        }
-    }
-
-    // MARK: - Row
-
-    @ViewBuilder
-    private func row(_ entry: LearnEntry) -> some View {
-        NavigationLink {
-            LearnDetailView(entry: entry,
-                            isFavorite: favoriteBinding(for: entry.id))
-        } label: {
-            HStack(alignment: .top, spacing: 12) {
-                Image(systemName: entry.kind.icon)
-                    .foregroundStyle(.secondary)
-                    .font(.title3)
-                    .frame(width: 28)
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(entry.title)
-                        .font(.body)
-                        .fontWeight(.semibold)
-                        .lineLimit(2)
-                    if let subtitle = entry.subtitle, !subtitle.isEmpty {
-                        Text(subtitle)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(2)
-                    }
-                    if !entry.tags.isEmpty {
-                        TagsView(tags: entry.tags)
-                    }
-                }
-
-                Spacer()
-
-                if favoriteIDs.contains(entry.id) {
-                    Image(systemName: "star.fill")
-                        .foregroundStyle(.yellow)
-                        .accessibilityLabel("Favorite")
-                }
+            .onAppear {
+                seedOpportunitiesIfNeeded()
             }
-            .padding(.vertical, 4)
         }
     }
 
-    // MARK: - Filtering
+    // MARK: - Computed: filter + sections
+
+    private var sectionKindsToShow: [LearnEntry.Kind] {
+        switch filter {
+        case .all:            return [.glossary, .guide, .link, .note, .opportunity]
+        case .glossary:       return [.glossary]
+        case .guides:         return [.guide]
+        case .links:          return [.link]
+        case .notes:          return [.note]
+        case .opportunities:  return [.opportunity]
+        }
+    }
 
     private var filteredEntries: [LearnEntry] {
-        var result = entries
-
+        var result: [LearnEntry]
         switch filter {
-        case .all: break
-        case .glossary:
-            result = result.filter { $0.kind == .glossary }
-        case .guides:
-            result = result.filter { $0.kind == .guide }
-        case .links:
-            result = result.filter { $0.kind == .link }
+        case .all:           result = allEntries
+        case .glossary:      result = allEntries.filter { $0.kind == .glossary }
+        case .guides:        result = allEntries.filter { $0.kind == .guide }
+        case .links:         result = allEntries.filter { $0.kind == .link }
+        case .notes:         result = notes // use notes array directly to enable delete
+        case .opportunities: result = allEntries.filter { $0.kind == .opportunity }
         }
 
-        if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            let q = searchText.lowercased()
+        let q = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if !q.isEmpty {
             result = result.filter { entry in
                 entry.title.lowercased().contains(q) ||
                 (entry.subtitle?.lowercased().contains(q) ?? false) ||
                 entry.tags.joined(separator: " ").lowercased().contains(q) ||
-                (entry.content?.lowercased().contains(q) ?? false)
+                (entry.content?.lowercased().contains(q) ?? false) ||
+                (entry.url?.absoluteString.lowercased().contains(q) ?? false)
             }
         }
 
-        return result
-            .sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
+        // Sort: favorites first (in All), then title A→Z
+        if filter == .all {
+            result.sort {
+                let f0 = favoriteIDs.contains($0.id), f1 = favoriteIDs.contains($1.id)
+                return f0 == f1
+                    ? $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending
+                    : f0 && !f1
+            }
+            return result
+        }
+
+        return result.sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
+    }
+
+    // MARK: - Rows
+
+    @ViewBuilder
+    private func row(_ entry: LearnEntry) -> some View {
+        // Notes route to editor; others use detail/link view
+        if entry.kind == .note {
+            NavigationLink {
+                LearnNoteEditor(
+                    entry: bindingForNote(id: entry.id),
+                    onDelete: { deleteNote(id: entry.id) }
+                )
+            } label: {
+                listRowLabel(entry)
+            }
+            .swipeActions {
+                Button(role: .destructive) { deleteNote(id: entry.id) } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+            }
+        } else {
+            NavigationLink {
+                LearnDetailView(entry: entry,
+                                isFavorite: favoriteBinding(for: entry.id))
+            } label: {
+                listRowLabel(entry)
+            }
+        }
+    }
+
+    private func listRowLabel(_ entry: LearnEntry) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: entry.kind.icon)
+                .foregroundStyle(.secondary)
+                .font(.title3)
+                .frame(width: 28)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(entry.title)
+                    .font(.body)
+                    .fontWeight(.semibold)
+                    .lineLimit(2)
+                if let subtitle = entry.subtitle, !subtitle.isEmpty {
+                    Text(subtitle)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+                if !entry.tags.isEmpty {
+                    TagsView(tags: entry.tags)
+                }
+            }
+
+            Spacer()
+
+            if favoriteIDs.contains(entry.id) {
+                Image(systemName: "star.fill")
+                    .foregroundStyle(.yellow)
+                    .accessibilityLabel("Favorite")
+            }
+        }
+        .padding(.vertical, 4)
     }
 
     // MARK: - Favorites
@@ -252,34 +326,135 @@ struct LearnView: View {
         )
     }
 
-    // MARK: - “Add your own” stub (basic for now)
+    // MARK: - Notes: add / delete / binding
 
-    private func addYourOwnTemplate() {
-        withAnimation {
-            entries.insert(
-                LearnEntry(
-                    title: "My Note",
-                    subtitle: "Tap to edit",
-                    kind: .guide,
-                    content: """
-                    # My Note
+    private func addNote() {
+        var current = notes
+        current.insert(
+            LearnEntry(
+                title: "Untitled Note",
+                subtitle: "Tap to edit",
+                kind: .note,
+                content: """
+                # Untitled Note
 
-                    Replace this with your own text. You can use **bold**, _italics_, lists, and headings.
-                    """,
-                    tags: ["personal", "note"]
-                ),
-                at: 0
+                Start typing here. You can use **bold**, _italics_, lists, and headings.
+                """,
+                tags: ["personal", "note"]
+            ),
+            at: 0
+        )
+        notes = current
+        // Switch to Notes tab automatically
+        filter = .notes
+    }
+
+    private func deleteNotes(at offsets: IndexSet) {
+        var current = notes
+        current.remove(atOffsets: offsets)
+        notes = current
+    }
+
+    private func deleteNote(id: UUID) {
+        var current = notes
+        current.removeAll { $0.id == id }
+        notes = current
+    }
+
+    private func bindingForNote(id: UUID) -> Binding<LearnEntry> {
+        Binding<LearnEntry>(
+            get: {
+                notes.first(where: { $0.id == id })!
+            },
+            set: { updated in
+                var current = notes
+                if let idx = current.firstIndex(where: { $0.id == id }) {
+                    current[idx] = updated
+                    notes = current
+                }
+            }
+        )
+    }
+
+    // MARK: - Opportunities: seed once
+
+    private func seedOpportunitiesIfNeeded() {
+        guard !oppsSeeded else { return }
+        opps = seededOpportunities()
+        oppsSeeded = true
+    }
+
+    private func reseedOpportunities() {
+        opps = seededOpportunities()
+    }
+
+    private func seededOpportunities() -> [LearnEntry] {
+        [
+            LearnEntry(
+                title: "AcreTrader",
+                subtitle: "Farmland investing platform",
+                kind: .opportunity,
+                content: "Invest in U.S. farmland through curated offerings; long-term, income + appreciation potential.",
+                url: URL(string: "https://acretrader.com/"),
+                tags: ["real assets", "farmland", "income"]
+            ),
+            LearnEntry(
+                title: "Royalty Exchange (Auctions)",
+                subtitle: "Music royalty auctions",
+                kind: .opportunity,
+                content: "Bid on music royalty streams; returns tied to catalog performance.",
+                url: URL(string: "https://auctions.royaltyexchange.com/overview"),
+                tags: ["royalties", "music", "cash flow"]
+            ),
+            LearnEntry(
+                title: "CrowdStreet",
+                subtitle: "Commercial real estate marketplace",
+                kind: .opportunity,
+                content: "Access CRE deals across sponsors, strategies, and geographies.",
+                url: URL(string: "https://crowdstreet.com/"),
+                tags: ["real estate", "CRE", "marketplace"]
+            ),
+            LearnEntry(
+                title: "EnergyNet",
+                subtitle: "Oil & gas asset auctions",
+                kind: .opportunity,
+                content: "Online marketplace for upstream oil & gas interests and related assets.",
+                url: URL(string: "https://www.energynet.com/"),
+                tags: ["energy", "oil & gas", "auctions"]
+            ),
+            LearnEntry(
+                title: "LandGate",
+                subtitle: "Land & resource valuations and listings",
+                kind: .opportunity,
+                content: "Data platform and marketplace for land, minerals, and renewables siting.",
+                url: URL(string: "https://www.landgate.com/"),
+                tags: ["land", "data", "renewables"]
+            ),
+            LearnEntry(
+                title: "U.S. Mineral Exchange",
+                subtitle: "Mineral rights marketplace",
+                kind: .opportunity,
+                content: "Buy/sell mineral rights and royalties with education resources.",
+                url: URL(string: "https://www.usmineralexchange.com/"),
+                tags: ["minerals", "royalties", "energy"]
+            ),
+            LearnEntry(
+                title: "Pecan Estimate",
+                subtitle: "Orchard valuation & yield tools",
+                kind: .opportunity,
+                content: "Niche tool for pecan orchards—useful in ag investing due diligence.",
+                url: URL(string: "https://pecanestimate.com/"),
+                tags: ["agriculture", "tools", "valuation"]
             )
-        }
+        ]
     }
 }
 
-// MARK: - Detail View
+// MARK: - Detail View (read-only for non-note types)
 
 private struct LearnDetailView: View {
     let entry: LearnEntry
     @Binding var isFavorite: Bool
-    @State private var showShareSheet = false
 
     var body: some View {
         ScrollView {
@@ -303,10 +478,9 @@ private struct LearnDetailView: View {
                     TagsView(tags: entry.tags)
                 }
 
-                // Content or Link
                 Group {
                     if let md = entry.content, !md.isEmpty {
-                        Text(.init(md)) // Markdown-rendered
+                        Text(.init(md))
                             .font(.body)
                             .textSelection(.enabled)
                     } else if let url = entry.url {
@@ -325,7 +499,6 @@ private struct LearnDetailView: View {
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-
                 Spacer(minLength: 12)
             }
             .padding()
@@ -333,15 +506,11 @@ private struct LearnDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
-                Button {
-                    isFavorite.toggle()
-                } label: {
+                Button { isFavorite.toggle() } label: {
                     Image(systemName: isFavorite ? "star.fill" : "star")
                 }
                 if let url = entry.url {
-                    ShareLink(item: url) {
-                        Image(systemName: "square.and.arrow.up")
-                    }
+                    ShareLink(item: url) { Image(systemName: "square.and.arrow.up") }
                 } else if let content = entry.content {
                     ShareLink(item: content.data(using: .utf8) ?? Data(),
                               preview: SharePreview(entry.title)) {
@@ -353,11 +522,63 @@ private struct LearnDetailView: View {
     }
 }
 
+// MARK: - Note Editor (editable)
+
+private struct LearnNoteEditor: View {
+    @Binding var entry: LearnEntry
+    var onDelete: () -> Void
+
+    @FocusState private var focused: Field?
+    enum Field { case title, subtitle, content }
+
+    var body: some View {
+        Form {
+            Section("Title") {
+                TextField("Title", text: $entry.title)
+                    .focused($focused, equals: .title)
+
+                TextField("Subtitle", text: Binding($entry.subtitle, replacingNilWith: ""))
+                    .focused($focused, equals: .subtitle)
+            }
+
+            Section("Content") {
+                TextEditor(text: Binding($entry.content, replacingNilWith: """
+                # Note
+
+                Start typing here. Use **bold**, _italics_, lists, and headings.
+                """))
+                .frame(minHeight: 200)
+                .font(.body.monospaced())
+            }
+
+            if !entry.tags.isEmpty {
+                Section("Tags") {
+                    TagsView(tags: entry.tags)
+                }
+            }
+        }
+        .navigationTitle("Edit Note")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                Button(role: .destructive, action: onDelete) {
+                    Image(systemName: "trash")
+                }
+            }
+        }
+        .onAppear {
+            // Focus title on first open if empty
+            if entry.title.trimmingCharacters(in: .whitespaces).isEmpty {
+                focused = .title
+            }
+        }
+    }
+}
+
 // MARK: - Small Tag Chips
 
 private struct TagsView: View {
     var tags: [String]
-
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 6) {
@@ -375,6 +596,18 @@ private struct TagsView: View {
     }
 }
 
+// MARK: - Helpers
+
+private extension Binding where Value == String {
+    init(_ source: Binding<String?>, replacingNilWith fallback: String) {
+        self.init(
+            get: { source.wrappedValue ?? fallback },
+            set: { newValue in
+                source.wrappedValue = newValue.isEmpty ? nil : newValue
+            }
+        )
+    }
+}
 // MARK: - Preview
 
 #Preview {
