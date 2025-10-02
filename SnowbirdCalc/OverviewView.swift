@@ -72,40 +72,43 @@ struct OverviewView: View {
                 }
 
                 // Scenarios at a glance
+                // Replace SectionCard for scenarios with a List Section
                 SectionCard(title: "Your Scenarios") {
                     if vm.scenarios.isEmpty {
                         Text("No scenarios yet. Create one to get started.")
                             .foregroundStyle(.secondary)
                     } else {
-                        VStack(spacing: 0) {
+                        List {
                             ForEach(vm.scenarios) { s in
-                                Button {
-                                    vm.selectedID = s.id
-                                } label: {
-                                    HStack(alignment: .firstTextBaseline) {
-                                        VStack(alignment: .leading, spacing: 4) {
-                                            Text(s.name)
-                                                .fontWeight(.medium)
-                                            Text("\(s.subs.count) subsidiaries • Deferral \(dollar(s.employeeDeferral))")
-                                                .font(.caption)
-                                                .foregroundStyle(.secondary)
-                                        }
-                                        Spacer()
-                                        if vm.selectedID == s.id {
-                                            Image(systemName: "checkmark.circle.fill")
-                                                .foregroundStyle(.tint)
-                                        }
+                                HStack(alignment: .firstTextBaseline) {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(s.name).fontWeight(.medium)
+                                        Text("\(s.subs.count) subsidiaries • Deferral \(dollar(s.employeeDeferral))")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
                                     }
-                                    .contentShape(Rectangle())
+                                    Spacer()
+                                    if vm.selectedID == s.id {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .foregroundStyle(.tint)
+                                    }
                                 }
-                                .buttonStyle(.plain)
-                                .padding(.vertical, 10)
-
-                                if s.id != vm.scenarios.last?.id {
-                                    Divider()
+                                .contentShape(Rectangle())
+                                .onTapGesture { vm.selectedID = s.id }
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        vm.delete(id: s.id)
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
                                 }
                             }
+                            .onDelete { offsets in
+                                vm.delete(at: offsets)
+                            }
                         }
+                        .listStyle(.plain)
+                        .frame(height: 300) // constrain if you want it not to expand forever
                     }
                 }
             }

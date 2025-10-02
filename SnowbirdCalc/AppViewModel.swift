@@ -68,10 +68,8 @@ final class AppViewModel: ObservableObject {
         selectedID = copy.id
     }
 
-    func delete(_ offsets: IndexSet) {
-        scenarios.remove(atOffsets: offsets)
-        selectedID = scenarios.first?.id
-    }
+    // Removed the old `func delete(_ offsets: IndexSet)` to avoid API confusion.
+    // Use the extension's `delete(at:)` and `delete(id:)` instead.
 
     func deleteAll() {
         scenarios.removeAll()
@@ -131,5 +129,32 @@ final class AppViewModel: ObservableObject {
         var i = 2
         while existing.contains("\(base) Copy \(i)") { i += 1 }
         return "\(base) Copy \(i)"
+    }
+
+    // Core remover that both public delete methods use
+    private func removeScenario(at index: Int) {
+        let removed = scenarios.remove(at: index)
+        if selectedID == removed.id {
+            selectedID = scenarios.first?.id
+        }
+    }
+}
+
+// MARK: - Deletion helpers (List swipe + edit-mode)
+extension AppViewModel {
+    /// For `.onDelete` with `IndexSet`
+    func delete(at offsets: IndexSet) {
+        // remove in reverse to keep indices valid
+        for idx in offsets.sorted(by: >) {
+            guard scenarios.indices.contains(idx) else { continue }
+            removeScenario(at: idx)
+        }
+    }
+
+    /// For `.swipeActions` delete by id
+    func delete(id: Scenario.ID) {
+        if let idx = scenarios.firstIndex(where: { $0.id == id }) {
+            removeScenario(at: idx)
+        }
     }
 }
