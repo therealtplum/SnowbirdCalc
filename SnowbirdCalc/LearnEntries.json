@@ -443,5 +443,45 @@
       "content": "Fast, easy, and affordable oil & gas value estimates.",
       "url": "https://pecanestimate.com/",
       "tags": ["agriculture", "tools", "valuation", "minerals", "royalties", "energy"]
+    },
+    {
+      "title": "Vinovest",
+      "subtitle": "Fine wine investing",
+      "kind": "Opportunities",
+      "content": "Invest in curated fine wine portfolios with professional storage, insurance, and secondary-market liquidity options.",
+      "url": "https://www.vinovest.co/",
+      "tags": ["wine", "collectibles", "real assets"]
+    },
+    {
+      "title": "Yieldstreet",
+      "subtitle": "Private credit & alternative deals",
+      "kind": "Opportunities",
+      "content": "Marketplace for private credit and alternatives including structured credit, litigation finance, and real estate debt/equity.",
+      "url": "https://www.yieldstreet.com/",
+      "tags": ["private credit", "real estate", "litigation", "alternatives"]
+    },
+    {
+      "title": "FarmTogether",
+      "subtitle": "Farmland crowdfunding",
+      "kind": "Opportunities",
+      "content": "Fractional investment in U.S. farmland; exposure to land appreciation and operating/lease income.",
+      "url": "https://farmtogether.com/",
+      "tags": ["farmland", "agriculture", "real assets"]
+    },
+    {
+      "title": "Arrived Homes",
+      "subtitle": "Fractional rental homes",
+      "kind": "Opportunities",
+      "content": "Invest in single-family rental properties for passive income; platform handles sourcing, management, and distributions.",
+      "url": "https://arrived.com/",
+      "tags": ["real estate", "rental", "income"]
+    },
+    {
+      "title": "EquityMultiple",
+      "subtitle": "Commercial real estate investing",
+      "kind": "Opportunities",
+      "content": "Access diversified CRE offerings across syndications, funds, and debt structures (generally for accredited investors).",
+      "url": "https://www.equitymultiple.com/",
+      "tags": ["real estate", "CRE", "syndication"]
     }
 ]
