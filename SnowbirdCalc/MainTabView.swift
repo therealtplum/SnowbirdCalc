@@ -5,7 +5,7 @@ struct MainTabView: View {
     @State private var selected: Tab = .overview
 
     enum Tab: Hashable {
-        case overview, scenarios, capital
+        case overview, scenarios, capital, learn
     }
 
     var body: some View {
@@ -37,6 +37,15 @@ struct MainTabView: View {
                 Label("Capital", systemImage: "banknote")
             }
             .tag(Tab.capital)
+            
+            // LEARN
+            NavigationStack {
+                LearnView()
+            }
+            .tabItem {
+                Label("Learn", systemImage: "book")
+            }
+            .tag(Tab.learn)
         }
     }
 }
