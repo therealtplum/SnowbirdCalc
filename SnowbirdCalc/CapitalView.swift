@@ -18,7 +18,6 @@ struct CapitalView: View {
             VStack(spacing: 16) {
 
                 // ── Contributions & Summary
-                // ── Contributions & Summary
                 SectionCard(title: "HoldCo Capital") {
                     row("Total Contributions") {
                         currencyField(value: vm.contributions) { vm.contributions = max(0, $0) }
@@ -200,15 +199,21 @@ struct CapitalView: View {
 
     @ViewBuilder
     private func currencyField(value: Double, onChange: @escaping (Double) -> Void) -> some View {
-        TextField("", value: Binding(
-            get: { value },
-            set: { newVal in onChange(newVal) }
-        ), format: .number)
+        TextField(
+            "",
+            value: Binding(
+                get: { value },
+                set: { newVal in onChange(newVal) }
+            ),
+            format: FloatingPointFormatStyle<Double>.Currency.currency(code: "USD").rounded(rule: .towardZero, increment: 1) // whole dollars only
+
+        )
         #if os(iOS)
         .keyboardType(.decimalPad)
         #endif
         .multilineTextAlignment(.trailing)
         .textFieldStyle(.roundedBorder)
+        .monospacedDigit()
         .frame(minWidth: 140)
     }
 
