@@ -122,14 +122,7 @@ struct LearnView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // Category Filter
-                Picker("Category", selection: $filter) {
-                    ForEach(Filter.allCases) { f in
-                        Text(f.rawValue).tag(f)
-                    }
-                }
-                .pickerStyle(.segmented)
-                .padding([.horizontal, .top])
+                FilterBar(selection: $filter)
 
                 // List
                 List {
