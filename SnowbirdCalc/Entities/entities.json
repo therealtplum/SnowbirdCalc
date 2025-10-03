@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "updatedAt": "2025-10-02T12:30:57Z",
+  "entities": [
+    {
+      "id": "SHOLD",
+      "legalName": "Snowbird Capital Holdings LLC",
+      "shortName": "HoldCo",
+      "jurisdiction": "Delaware",
+      "ein": "39-4175725",
+      "effectiveDate": "2025-10-01",
+      "status": "Open"
+    },
+    {
+      "id": "SMARK",
+      "legalName": "Snowbird Capital Markets LLC",
+      "shortName": "Markets",
+      "jurisdiction": "Delaware",
+      "ein": "39-4233808",
+      "effectiveDate": "2025-10-02",
+      "status": "Open"
+    },
+    {
+      "id": "SROY",
+      "legalName": "Snowbird Capital Royalties LLC",
+      "shortName": "Royalties",
+      "jurisdiction": "Delaware",
+      "ein": "39-4421921",
+      "effectiveDate": "2025-10-02",
+      "status": "Open"
+    },
+    {
+      "id": "SFARM",
+      "legalName": "Snowbird Capital Farms LLC",
+      "shortName": "Farms",
+      "jurisdiction": "Delaware",
+      "ein": "39-4284015",
+      "effectiveDate": "2025-10-02",
+      "status": "Open"
+    },
+    {
+      "id": "TPLUM",
+      "legalName": "Thomas Plummer (personal)",
+      "shortName": "TPlum",
+      "jurisdiction": "Chicago, IL",
+      "ein": null,
+      "effectiveDate": "2025-08-29",
+      "status": "Open"
+    }
+  ]
+}

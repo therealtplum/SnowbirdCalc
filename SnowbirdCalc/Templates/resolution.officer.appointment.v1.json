@@ -1,0 +1,203 @@
+{
+  "id": "resolution.officer.appointment.v1",
+  "name": "Officer Appointment / Authorization",
+  "version": 2,
+  "typeTag": "GOV",
+  "fileNamePattern": "{{resolutionId}}.pdf",
+  "fields": [
+    {
+      "id": "date",
+      "label": "Resolution Date",
+      "type": "date",
+      "required": true
+    },
+    {
+      "id": "entity",
+      "label": "Entity",
+      "type": "entity",
+      "source": "entities",
+      "required": true
+    },
+    {
+      "id": "officerName",
+      "label": "Officer Name",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "officerTitle",
+      "label": "Officer Title",
+      "type": "enum",
+      "options": [
+        "Chief Executive Officer",
+        "President",
+        "Vice President",
+        "Secretary",
+        "Treasurer",
+        "CFO",
+        "COO",
+        "Manager",
+        "Director",
+        "Agent",
+        "Other"
+      ],
+      "required": true
+    },
+    {
+      "id": "officerTitleOther",
+      "label": "Other Title (specify)",
+      "type": "text",
+      "visibleIf": {
+        "field": "officerTitle",
+        "equals": "Other"
+      },
+      "requiredIf": {
+        "field": "officerTitle",
+        "equals": "Other"
+      }
+    },
+    {
+      "id": "isEquityHolder",
+      "label": "Is this officer an equity holder?",
+      "type": "boolean",
+      "required": true
+    },
+    {
+      "id": "equityPercent",
+      "label": "Equity % (0\u2013100)",
+      "type": "number",
+      "min": 0,
+      "max": 100,
+      "step": 0.01,
+      "visibleIf": {
+        "field": "isEquityHolder",
+        "equals": true
+      },
+      "requiredIf": {
+        "field": "isEquityHolder",
+        "equals": true
+      }
+    },
+    {
+      "id": "equityClass",
+      "label": "Equity Class",
+      "type": "enum",
+      "options": [
+        "Common",
+        "Preferred",
+        "Class A",
+        "Class B",
+        "Units",
+        "Other"
+      ],
+      "visibleIf": {
+        "field": "isEquityHolder",
+        "equals": true
+      }
+    },
+    {
+      "id": "effectiveDate",
+      "label": "Effective Date",
+      "type": "date",
+      "required": true
+    },
+    {
+      "id": "endDate",
+      "label": "End Date (optional)",
+      "type": "date",
+      "validate": {
+        "gteField": "effectiveDate",
+        "message": "End Date must be on/after Effective Date."
+      }
+    },
+    {
+      "id": "authorityScopes",
+      "label": "Authority Granted",
+      "type": "multiselect",
+      "options": [
+        {
+          "id": "banking",
+          "label": "Banking (open/maintain accounts, sign checks/ACH)"
+        },
+        {
+          "id": "contracts",
+          "label": "Contracts up to specified limit"
+        },
+        {
+          "id": "personnel",
+          "label": "Personnel (hire/terminate within budget)"
+        },
+        {
+          "id": "regulatory",
+          "label": "Regulatory filings & compliance"
+        },
+        {
+          "id": "expenses",
+          "label": "Expense approvals up to limit"
+        },
+        {
+          "id": "other",
+          "label": "Other (specify)"
+        }
+      ],
+      "required": true
+    },
+    {
+      "id": "contractLimit",
+      "label": "Contract Limit ($)",
+      "type": "money",
+      "visibleIf": {
+        "field": "authorityScopes",
+        "includes": "contracts"
+      }
+    },
+    {
+      "id": "expenseLimit",
+      "label": "Expense Limit ($)",
+      "type": "money",
+      "visibleIf": {
+        "field": "authorityScopes",
+        "includes": "expenses"
+      }
+    },
+    {
+      "id": "authorityOtherNotes",
+      "label": "Other Authority (details)",
+      "type": "multiline",
+      "visibleIf": {
+        "field": "authorityScopes",
+        "includes": "other"
+      }
+    },
+    {
+      "id": "notes",
+      "label": "Notes/Purpose (optional)",
+      "type": "multiline"
+    },
+    {
+      "id": "signers",
+      "label": "Approving Signers",
+      "type": "signer",
+      "repeatable": true,
+      "minItems": 1
+    },
+    {
+      "id": "resolutionId",
+      "label": "Resolution ID",
+      "type": "computed",
+      "hidden": true,
+      "compute": {
+        "fn": "generateResolutionId",
+        "args": {
+          "entityIdPath": "entity.id",
+          "datePath": "date",
+          "typePath": "$template.typeTag"
+        }
+      }
+    }
+  ],
+  "document": {
+    "title": "{{resolutionId}} \u2014 Officer Appointment",
+    "bodyMd": "# RESOLUTION OF {{entity.legalName}}\n\n**ID:** {{resolutionId}}\n\nAdopted on **{{date | longDate}}**.\n\nThe Company hereby appoints **{{officerName}}** as **{{officerTitle == 'Other' ? officerTitleOther : officerTitle}}** of **{{entity.legalName}}**, a {{entity.jurisdiction}} entity (EIN {{entity.ein}}), effective **{{effectiveDate | longDate}}**{{ endDate ? (', until ' + (endDate | longDate)) : '' }}.\n\n{{#if isEquityHolder}}\n**Equity Holder:** Yes \u2014 **{{equityPercent | pct}}** of {{equityClass || 'Equity'}}.\n{{else}}\n**Equity Holder:** No.\n{{/if}}\n\n**Authority Granted:**\n{{#if authorityScopes.includes('banking')}}\u2022 Banking: open/maintain accounts; sign checks/ACH.{{/if}}\n{{#if authorityScopes.includes('contracts')}}\n\u2022 Contracts: authority up to **{{contractLimit | money}}**.\n{{/if}}\n{{#if authorityScopes.includes('expenses')}}\n\u2022 Expense approvals up to **{{expenseLimit | money}}**.\n{{/if}}\n{{#if authorityScopes.includes('personnel')}}\u2022 Personnel actions within budget.{{/if}}\n{{#if authorityScopes.includes('regulatory')}}\u2022 Regulatory filings and compliance.{{/if}}\n{{#if authorityScopes.includes('other')}}\u2022 Other: {{authorityOtherNotes}}{{/if}}\n\n{{#if notes}}\n**Notes:** {{notes}}\n{{/if}}\n\nThe undersigned certify that the foregoing was duly adopted and remains in full force and effect.\n\n{{#each signers}}\n---\n**{{this.name}}**  \n{{this.title}}  \n{{this.signatureBlock}}\n{{/each}}\n"
+  }
+}

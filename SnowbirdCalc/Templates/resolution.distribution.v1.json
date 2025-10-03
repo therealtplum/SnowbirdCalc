@@ -1,0 +1,91 @@
+{
+  "id": "resolution.distribution.v1",
+  "name": "Distribution to Subsidiary",
+  "version": 2,
+  "typeTag": "DIST",
+  "fileNamePattern": "{{resolutionId}}.pdf",
+  "fields": [
+    {
+      "id": "date",
+      "label": "Resolution Date",
+      "type": "date",
+      "required": true
+    },
+    {
+      "id": "fromEntity",
+      "label": "From (Entity)",
+      "type": "entity",
+      "source": "entities",
+      "required": true,
+      "help": "Usually SHOLD \u2013 Snowbird Capital Holdings LLC"
+    },
+    {
+      "id": "toEntity",
+      "label": "To (Subsidiary)",
+      "type": "entity",
+      "source": "entities",
+      "required": true,
+      "validate": {
+        "notEqualField": "fromEntity",
+        "message": "From and To must differ."
+      }
+    },
+    {
+      "id": "amount",
+      "label": "Amount (USD)",
+      "type": "money",
+      "required": true,
+      "min": 0
+    },
+    {
+      "id": "purpose",
+      "label": "Purpose / Notes",
+      "type": "multiline",
+      "required": true
+    },
+    {
+      "id": "method",
+      "label": "Method",
+      "type": "enum",
+      "options": [
+        "Wire",
+        "ACH",
+        "Check",
+        "Intercompany Journal"
+      ],
+      "required": true
+    },
+    {
+      "id": "effectiveDate",
+      "label": "Effective Date",
+      "type": "date",
+      "required": true
+    },
+    {
+      "id": "signers",
+      "label": "Approving Signers",
+      "type": "signer",
+      "repeatable": true,
+      "minItems": 1,
+      "help": "Manager/Member or Board signers for the From entity."
+    },
+    {
+      "id": "resolutionId",
+      "label": "Resolution ID",
+      "type": "computed",
+      "hidden": true,
+      "compute": {
+        "fn": "generateResolutionId",
+        "args": {
+          "entityIdPath": "fromEntity.id",
+          "datePath": "date",
+          "typePath": "$template.typeTag"
+        }
+      }
+    }
+  ],
+  "document": {
+    "title": "{{resolutionId}} \u2014 Distribution Authorization",
+    "bodyMd": "# RESOLUTION OF {{fromEntity.legalName}}\n\n**ID:** {{resolutionId}}\n\nAdopted on **{{date | longDate}}**.\n\nThe Company authorizes and approves a distribution to **{{toEntity.legalName}}**, a {{toEntity.jurisdiction}} entity (EIN {{toEntity.ein}}), in the amount of **{{amount | money}}**, effective **{{effectiveDate | longDate}}**.\n\n**Purpose:** {{purpose}}\n\n**Method:** {{method}}\n\nThe undersigned certify that this resolution was duly adopted and remains in full force and effect.\n\n{{#each signers}}\n---\n**{{this.name}}**  \n{{this.title}}  \n{{this.signatureBlock}}\n{{/each}}\n"
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "id": "resolution.bank.open.v1",
+  "name": "Open Bank Account",
+  "version": 2,
+  "typeTag": "OPEN",
+  "fileNamePattern": "{{resolutionId}}.pdf",
+  "fields": [
+    {
+      "id": "date",
+      "label": "Resolution Date",
+      "type": "date",
+      "required": true
+    },
+    {
+      "id": "entity",
+      "label": "Entity",
+      "type": "entity",
+      "source": "entities",
+      "required": true
+    },
+    {
+      "id": "bankName",
+      "label": "Bank Name",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "accountType",
+      "label": "Account Type",
+      "type": "enum",
+      "options": [
+        "Checking",
+        "Savings",
+        "Money Market",
+        "Operating",
+        "Payroll",
+        "Escrow"
+      ],
+      "required": true
+    },
+    {
+      "id": "purpose",
+      "label": "Purpose",
+      "type": "multiline",
+      "required": true
+    },
+    {
+      "id": "signingAuthority",
+      "label": "Authorized Signers",
+      "type": "signer",
+      "repeatable": true,
+      "minItems": 1
+    },
+    {
+      "id": "limits",
+      "label": "Transaction Limits (optional)",
+      "type": "multiline",
+      "placeholder": "e.g., Single transfer not to exceed $50,000 without secondary approval."
+    },
+    {
+      "id": "resolutionId",
+      "label": "Resolution ID",
+      "type": "computed",
+      "hidden": true,
+      "compute": {
+        "fn": "generateResolutionId",
+        "args": {
+          "entityIdPath": "entity.id",
+          "datePath": "date",
+          "typePath": "$template.typeTag"
+        }
+      }
+    }
+  ],
+  "document": {
+    "title": "{{resolutionId}} \u2014 Bank Account Opening",
+    "bodyMd": "# RESOLUTION OF {{entity.legalName}}\n\n**ID:** {{resolutionId}}\n\nAdopted on **{{date | longDate}}**.\n\nResolved, that **{{entity.legalName}}**, a {{entity.jurisdiction}} entity (EIN {{entity.ein}}), shall open a **{{accountType}}** account with **{{bankName}}**.\n\n**Purpose:** {{purpose}}\n\n**Authorized Signers:**\n{{#each signingAuthority}}\n- {{this.name}}, {{this.title}}\n{{/each}}\n\n{{#if limits}}\n**Transaction Limits:** {{limits}}\n{{/if}}\n\nAny prior resolutions that conflict with the foregoing are hereby revoked.\n\n{{#each signingAuthority}}\n---\n**{{this.name}}**  \n{{this.title}}  \n{{this.signatureBlock}}\n{{/each}}\n"
+  }
+}
