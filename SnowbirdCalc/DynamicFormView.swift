@@ -1,7 +1,18 @@
+//
+//  DynamicFormView.swift
+//  SnowbirdCalc
+//
+//  Created by Thomas Plummer on 10/2/25.
+//
+
 import SwiftUI
 import Foundation
 
 // MARK: - DynamicFormView
+// SwiftUI renderer for FormTemplate
+// Depends on: FormTemplateModels.swift, EntityDirectory.swift, ValuesPath.swift, ResolutionIdService.swift, MustacheLite.swift
+// For PDF export, add PDFExporter.swift (provided) and an optional Assets entry named "SnowbirdLetterhead".
+
 public struct DynamicFormView: View {
     public let template: FormTemplate
     public let directory: DirectoryStore
@@ -40,7 +51,7 @@ public struct DynamicFormView: View {
                 }
             }
             .sheet(isPresented: $showPreview) {
-                ResolutionPreviewSheet(title: renderedTitle, content: renderedBody)  // ← label is `content`
+                ResolutionPreviewSheet(title: renderedTitle, content: renderedBody)
             }
         }
         .onAppear { primeDefaults() }
@@ -72,7 +83,9 @@ extension DynamicFormView {
             get: { (values[field.id] as? String) ?? "" },
             set: { values[field.id] = $0 }
         )
-        return Section(header: Text(field.label)) { TextField(field.placeholder ?? "", text: binding) }
+        return Section(header: Text(field.label)) {
+            TextField(field.placeholder ?? "", text: binding)
+        }
     }
 
     fileprivate func multilineField(_ field: FormTemplate.Field) -> some View {
@@ -91,7 +104,8 @@ extension DynamicFormView {
             set: { values[field.id] = isoDate($0) }
         )
         return Section(header: Text(field.label)) {
-            DatePicker("", selection: binding, displayedComponents: [.date]).datePickerStyle(.compact)
+            DatePicker("", selection: binding, displayedComponents: [.date])
+                .datePickerStyle(.compact)
         }
     }
 
@@ -104,7 +118,9 @@ extension DynamicFormView {
             },
             set: { values[field.id] = Double($0.filter { "0123456789.-".contains($0) }) ?? 0 }
         )
-        return Section(header: Text(field.label)) { TextField("0", text: binding).keyboardType(.decimalPad) }
+        return Section(header: Text(field.label)) {
+            TextField("0", text: binding).keyboardType(.decimalPad)
+        }
     }
 
     fileprivate func numberField(_ field: FormTemplate.Field) -> some View {
@@ -116,7 +132,9 @@ extension DynamicFormView {
             },
             set: { values[field.id] = Double($0.filter { "0123456789.-".contains($0) }) ?? 0 }
         )
-        return Section(header: Text(field.label)) { TextField("0", text: binding).keyboardType(.decimalPad) }
+        return Section(header: Text(field.label)) {
+            TextField("0", text: binding).keyboardType(.decimalPad)
+        }
     }
 
     fileprivate func booleanField(_ field: FormTemplate.Field) -> some View {
@@ -136,7 +154,8 @@ extension DynamicFormView {
         return Section(header: Text(field.label)) {
             Picker(field.label, selection: binding) {
                 ForEach(options, id: \.self) { Text($0).tag($0) }
-            }.pickerStyle(.menu)
+            }
+            .pickerStyle(.menu)
         }
     }
 
@@ -152,7 +171,8 @@ extension DynamicFormView {
                     get: { selected.wrappedValue.contains(opt) },
                     set: { yes in
                         var set = selected.wrappedValue
-                        if yes, !set.contains(opt) { set.append(opt) } else { set.removeAll { $0 == opt } }
+                        if yes, !set.contains(opt) { set.append(opt) }
+                        else { set.removeAll { $0 == opt } }
                         selected.wrappedValue = set
                     }
                 )
@@ -173,14 +193,19 @@ extension DynamicFormView {
                 ForEach(entities, id: \.id) { e in
                     VStack(alignment: .leading) {
                         Text(e.legalName).font(.body)
-                        if let j = e.jurisdiction { Text("\(e.id) • \(j)").font(.caption).foregroundColor(.secondary) }
-                    }.tag(e.id)
+                        if let j = e.jurisdiction {
+                            Text("\(e.id) • \(j)").font(.caption).foregroundColor(.secondary)
+                        }
+                    }
+                    .tag(e.id)
                 }
             }
-            .pickerStyle(.menu) // safer across iOS versions
+            .pickerStyle(.menu)
         }
         .onAppear {
-            if values[field.id] == nil, let first = entities.first { values[field.id] = dumpEntity(first) }
+            if values[field.id] == nil, let first = entities.first {
+                values[field.id] = dumpEntity(first)
+            }
         }
     }
 
@@ -189,9 +214,11 @@ extension DynamicFormView {
         let list = (values[field.id] as? [[String:Any]]) ?? []
         return Section(header: Text(field.label)) {
             ForEach(Array(list.enumerated()), id: \.offset) { idx, item in
-                SignerRow(index: idx,
-                          name: item["name"] as? String ?? "",
-                          title: item["title"] as? String ?? "") { newName, newTitle in
+                SignerRow(
+                    index: idx,
+                    name: item["name"] as? String ?? "",
+                    title: item["title"] as? String ?? ""
+                ) { newName, newTitle in
                     var arr = (values[field.id] as? [[String:Any]]) ?? []
                     arr[idx]["name"] = newName
                     arr[idx]["title"] = newTitle
@@ -225,6 +252,8 @@ extension DynamicFormView {
 extension DynamicFormView {
     fileprivate func generateTapped() {
         formErrors.removeAll()
+
+        // Validate required/visible fields
         for f in template.fields {
             if !isVisible(f) { continue }
             if (f.required ?? false) && isEmpty(values[f.id]) {
@@ -234,8 +263,9 @@ extension DynamicFormView {
         }
         guard formErrors.isEmpty else { return }
 
-        // computed resolutionId
-        if let comp = template.fields.first(where: { $0.id == "resolutionId" })?.compute, comp.fn == "generateResolutionId" {
+        // Inject computed resolutionId if present
+        if let comp = template.fields.first(where: { $0.id == "resolutionId" })?.compute,
+           comp.fn == "generateResolutionId" {
             let entityId: String = (try? ValuesBag(values).valueAt(comp.args["entityIdPath"] ?? "")) ?? ""
             let dateStr: String = (try? ValuesBag(values).valueAt(comp.args["datePath"] ?? "")) ?? ""
             let typeTag: String = template.typeTag
@@ -244,11 +274,16 @@ extension DynamicFormView {
             values["resolutionId"] = rid
         }
 
-        // render
+        // Render via MustacheLite
         var bag = ValuesBag(values)
         let engine = MustacheLite()
-        var tbag = bag; let title = engine.render(template.document.title, values: &tbag)
-        var bbag = bag; let body = engine.render(template.document.bodyMd, values: &bbag)
+
+        var tbag = bag
+        let title = engine.render(template.document.title, values: &tbag)
+
+        var bbag = bag
+        let body = engine.render(template.document.bodyMd, values: &bbag)
+
         renderedTitle = title
         renderedBody = body
         showPreview = true
@@ -258,7 +293,9 @@ extension DynamicFormView {
         if let other = rule.notEqualField {
             let a = (values[field.id] as Any?)
             let b = (values[other] as Any?)
-            if compareEqual(a, b) { formErrors.append(rule.message ?? "\(field.label) must differ from \(other)") }
+            if compareEqual(a, b) {
+                formErrors.append(rule.message ?? "\(field.label) must differ from \(other)")
+            }
         }
         if let gte = rule.gteField {
             let aStr = (values[field.id] as? String) ?? ""
@@ -276,7 +313,13 @@ extension DynamicFormView {
 extension DynamicFormView {
     fileprivate func isVisible(_ field: FormTemplate.Field) -> Bool {
         guard let cond = field.visibleIf else { return true }
-        if let needle = cond.includes { return (values[cond.field] as? [String])?.contains(needle) ?? false }
+
+        // includes for multiselect
+        if let needle = cond.includes {
+            return (values[cond.field] as? [String])?.contains(needle) ?? false
+        }
+
+        // equals for primitives
         switch cond.equals {
         case .string(let s): return (values[cond.field] as? String) == s
         case .bool(let b):   return (values[cond.field] as? Bool) == b
@@ -297,8 +340,10 @@ extension DynamicFormView {
         switch (a, b) {
         case (let da as [String:Any], let db as [String:Any]):
             return (da["id"] as? String) == (db["id"] as? String)
-        case (let sa as String, let sb as String): return sa == sb
-        default: return false
+        case (let sa as String, let sb as String):
+            return sa == sb
+        default:
+            return false
         }
     }
 
@@ -317,14 +362,21 @@ extension DynamicFormView {
 
     fileprivate func dumpEntity(_ e: EntityDirectory.Entity?) -> [String:Any] {
         guard let e else { return [:] }
-        return ["id": e.id, "legalName": e.legalName, "shortName": e.shortName ?? "",
-                "jurisdiction": e.jurisdiction ?? "", "ein": e.ein ?? "",
-                "effectiveDate": e.effectiveDate ?? "", "status": e.status ?? ""]
+        return [
+            "id": e.id,
+            "legalName": e.legalName,
+            "shortName": e.shortName ?? "",
+            "jurisdiction": e.jurisdiction ?? "",
+            "ein": e.ein ?? "",
+            "effectiveDate": e.effectiveDate ?? "",
+            "status": e.status ?? ""
+        ]
     }
 
     fileprivate func optLabel(_ raw: String) -> String { raw }
 
     fileprivate func primeDefaults() {
+        // seed default dates to today where missing
         for f in template.fields where f.type == "date" && values[f.id] == nil {
             values[f.id] = isoDate(Date())
         }
@@ -352,11 +404,14 @@ fileprivate struct SignerRow: View {
     }
 }
 
-// MARK: - Preview Sheet (separate type)
+// MARK: - Preview Sheet with PDF Export
 public struct ResolutionPreviewSheet: View {
     let title: String
     let content: String
     @Environment(\.dismiss) private var dismiss
+
+    @State private var showingShare = false
+    @State private var shareURL: URL?
 
     public var body: some View {
         NavigationView {
@@ -364,17 +419,55 @@ public struct ResolutionPreviewSheet: View {
                 VStack(alignment: .leading, spacing: 12) {
                     Text(title).font(.title3).bold()
                     Divider()
-                    Text(content).font(.body).textSelection(.enabled)
+                    if let attributed = try? AttributedString(markdown: content) {
+                        Text(attributed).font(.body)
+                    } else {
+                        Text(content).font(.body)
+                    }
                 }
                 .padding()
             }
             .navigationTitle("Preview")
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Done") { dismiss() } } }
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Done") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Menu {
+                        Button("Export PDF (Plain)") {
+                            exportPDF(includeLetterhead: false)
+                        }
+                        Button("Export PDF (Snowbird Letterhead)") {
+                            exportPDF(includeLetterhead: true)
+                        }
+                    } label: {
+                        Label("Export", systemImage: "square.and.arrow.up")
+                    }
+                }
+            }
+            .sheet(isPresented: $showingShare) {
+                if let url = shareURL {
+                    ShareSheet(items: [url])
+                }
+            }
         }
+    }
+
+    private func exportPDF(includeLetterhead: Bool) {
+        // ⚠️ Temporarily disabled PDF generation
+        print("📄 Export PDF tapped (includeLetterhead=\(includeLetterhead)) — currently disabled.")
+        // shareURL = nil
+        // showingShare = false
+    }
+
+    private func sanitizedFileName(from s: String) -> String {
+        let invalid = CharacterSet(charactersIn: "/\\?%*|\"<>:")
+        return s.components(separatedBy: invalid).joined()
+            .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
 
-// MARK: - Demo Host (separate type)
+// MARK: - Optional: Demo Host for local testing (not used in app entry)
 public struct FormsDemoHost: View {
     @State private var template: FormTemplate?
     private let dirStore: DirectoryStore
@@ -383,13 +476,6 @@ public struct FormsDemoHost: View {
     public init() {
         let bundle = Bundle.main
 
-        // Debug: list bundle files once
-        if let root = bundle.resourcePath,
-           let sub = try? FileManager.default.subpathsOfDirectory(atPath: root) {
-            print("📦 Bundle files (first 40):", sub.prefix(40))
-            print("📄 JSON files:", sub.filter { $0.hasSuffix(".json") })
-        }
-
         // Entities: try Entities/ then root
         let entitiesURL =
             bundle.url(forResource: "entities", withExtension: "json", subdirectory: "Entities") ??
@@ -397,28 +483,24 @@ public struct FormsDemoHost: View {
 
         if let url = entitiesURL, let store = try? DirectoryStore(jsonURL: url) {
             self.dirStore = store
-            print("✅ Loaded entities from:", url.path)
         } else {
-            print("⚠️ entities.json not found in bundle.")
-            let empty = Data(#"{ "version":1, "updatedAt":"", "entities":[] }"#.utf8)
+            // Minimal empty fallback for testing
             let tmp = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("empty_entities.json")
-            try? empty.write(to: tmp)
+            if !FileManager.default.fileExists(atPath: tmp.path) {
+                let empty = #"{ "version":1, "updatedAt":"", "entities":[] }"#
+                try? empty.data(using: .utf8)?.write(to: tmp)
+            }
             self.dirStore = try! DirectoryStore(jsonURL: tmp)
         }
 
-        // Templates: try Templates/ then root
+        // Load one template for quick demo
         let templateURL =
             bundle.url(forResource: "resolution.distribution.v1", withExtension: "json", subdirectory: "Templates") ??
             bundle.url(forResource: "resolution.distribution.v1", withExtension: "json")
-
         if let url = templateURL,
            let data = try? Data(contentsOf: url),
            let tmpl = try? JSONDecoder().decode(FormTemplate.self, from: data) {
             _template = State(initialValue: tmpl)
-            print("✅ Loaded template from:", url.path)
-        } else {
-            print("⚠️ distribution template not found in bundle.")
-            _template = State(initialValue: nil)
         }
     }
 
