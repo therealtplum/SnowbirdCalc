@@ -623,5 +623,182 @@
       "kind": "Guides",
       "content": "Organize corporate docs, cap table, financials, tax returns, contracts, HR, IP, and policies. Use consistent naming and a read-only share.",
       "tags": ["ops", "fundraising", "governance"]
+    },
+    {
+      "title": "Deferred Revenue",
+      "subtitle": "Cash received before earning it",
+      "kind": "Glossary",
+      "content": "Liability representing payment received for goods or services yet to be delivered or performed. Recognized as revenue over time.",
+      "tags": ["accounting", "revenue"]
+    },
+    {
+      "title": "EBIT",
+      "subtitle": "Earnings before interest and taxes",
+      "kind": "Glossary",
+      "content": "A measure of a firm's profit that includes all incomes and expenses except interest and income tax expenses.",
+      "tags": ["finance", "profitability"]
+    },
+    {
+      "title": "Working Interest",
+      "subtitle": "Oil & gas ownership interest",
+      "kind": "Glossary",
+      "content": "An ownership share in an oil or gas lease that carries responsibility for a proportionate share of costs and entitles the owner to a share of production.",
+      "tags": ["energy", "royalties"]
+    },
+    {
+      "title": "Liquidity Ratio",
+      "subtitle": "Ability to meet short-term obligations",
+      "kind": "Glossary",
+      "content": "Measures a company’s capacity to pay off its current debts with its current assets — common examples include the current and quick ratios.",
+      "tags": ["finance", "liquidity"]
+    },
+    {
+      "title": "Terminal Value",
+      "subtitle": "Value beyond forecast period",
+      "kind": "Glossary",
+      "content": "Represents the estimated value of a business or project at the end of a projection period in a discounted cash flow model.",
+      "tags": ["valuation", "DCF"]
+    },
+    {
+      "title": "Par Value",
+      "subtitle": "Nominal value of a security",
+      "kind": "Glossary",
+      "content": "Face value of a bond or stock, often arbitrary for equity but important for legal capital and bond redemption.",
+      "tags": ["finance", "securities"]
+    },
+    {
+      "title": "WACC",
+      "subtitle": "Weighted Average Cost of Capital",
+      "kind": "Glossary",
+      "content": "Average rate of return a company is expected to pay its security holders to finance its assets.",
+      "tags": ["valuation", "finance"]
+    },
+    {
+      "title": "Bridge Loan",
+      "subtitle": "Short-term financing between rounds",
+      "kind": "Glossary",
+      "content": "Temporary loan used to cover short-term funding gaps, often replaced by longer-term capital or equity.",
+      "tags": ["financing", "startup"]
+    },
+    {
+      "title": "Gross Margin",
+      "subtitle": "Revenue minus cost of goods sold",
+      "kind": "Glossary",
+      "content": "Represents the percentage of revenue that exceeds COGS; a measure of production efficiency.",
+      "tags": ["accounting", "profitability"]
+    },
+    {
+      "title": "Preferred Return",
+      "subtitle": "Investor hurdle rate in private equity",
+      "kind": "Glossary",
+      "content": "Minimum annual return an investor must receive before a fund manager earns carried interest.",
+      "tags": ["private equity", "funds"]
+    },
+
+    {
+      "title": "Building a Simple Cash Dashboard",
+      "subtitle": "Track liquidity and runway at a glance",
+      "kind": "Guides",
+      "content": "Use three metrics: current cash, weekly net burn, and months of runway. Update weekly using bank balances and forecast. Add traffic lights: green (≥6 mo), yellow (3–6), red (<3).",
+      "tags": ["cash", "planning", "ops"]
+    },
+    {
+      "title": "Equity vs. Debt Financing",
+      "subtitle": "When to raise which",
+      "kind": "Guides",
+      "content": "Equity: dilutive but flexible. Debt: cheaper but restrictive. Align choice with cash flow predictability and growth stage.",
+      "tags": ["capital", "funding", "strategy"]
+    },
+    {
+      "title": "Closing Out the Fiscal Year",
+      "subtitle": "Checklist for clean year-end books",
+      "kind": "Guides",
+      "content": "Lock prior periods, reconcile all accounts, review aging reports, confirm 1099s/W-2s, and archive final statements. Summarize major variances vs. budget.",
+      "tags": ["accounting", "close", "reporting"]
+    },
+    {
+      "title": "Rolling Forecast Model",
+      "subtitle": "Update budgets dynamically",
+      "kind": "Guides",
+      "content": "Instead of annual budgets, use 12-month rolling forecasts updated monthly. Focus on drivers like units, conversion, or headcount.",
+      "tags": ["planning", "forecast", "ops"]
+    },
+    {
+      "title": "Evaluating a Private Fund Investment",
+      "subtitle": "Key metrics before subscribing",
+      "kind": "Guides",
+      "content": "Review GP experience, fund terms (pref, carry, hurdle), liquidity, and track record. Model fees vs. expected IRR and drawdown timing.",
+      "tags": ["private equity", "diligence", "funds"]
+    },
+    {
+      "title": "Startup Data Room Template",
+      "subtitle": "Organize for investors and diligence",
+      "kind": "Guides",
+      "content": "Structure folders by Legal, Financials, Tax, HR, and IP. Include cap table, key contracts, and board minutes. Keep read-only links with timestamps.",
+      "tags": ["startup", "fundraising", "governance"]
+    },
+    {
+      "title": "Hiring Your First Employee",
+      "subtitle": "Compliance and setup checklist",
+      "kind": "Guides",
+      "content": "Register for payroll tax accounts, obtain workers' comp, set up payroll provider, classify correctly (W-2 vs. 1099), and draft offer letter + handbook.",
+      "tags": ["HR", "payroll", "setup"]
+    },
+    {
+      "title": "Implementing Expense Controls",
+      "subtitle": "Stop leaks without slowing ops",
+      "kind": "Guides",
+      "content": "Adopt virtual cards per vendor, set department budgets, require receipts >$50, and review variance reports monthly.",
+      "tags": ["operations", "budget", "controls"]
+    },
+    {
+      "title": "Preparing for a Bank Line of Credit",
+      "subtitle": "Checklist before applying",
+      "kind": "Guides",
+      "content": "Have current financials, aging schedules, AR turns, covenant forecast, and collateral documentation ready. Expect personal or entity guarantees.",
+      "tags": ["financing", "banking", "debt"]
+    },
+    {
+      "title": "Internal Controls 101",
+      "subtitle": "Reduce fraud and errors",
+      "kind": "Guides",
+      "content": "Segregate duties, require dual approvals, reconcile monthly, and enforce secure access controls. Document everything — consistency beats complexity.",
+      "tags": ["controls", "accounting", "risk"]
+    },
+
+    {
+      "title": "IRS — Publication 535",
+      "subtitle": "Business Expenses guidance",
+      "kind": "Helpful Links",
+      "url": "https://www.irs.gov/publications/p535",
+      "tags": ["IRS", "deductions", "business"]
+    },
+    {
+      "title": "FASB — Accounting Standards Codification",
+      "subtitle": "Authoritative U.S. GAAP source",
+      "kind": "Helpful Links",
+      "url": "https://asc.fasb.org/",
+      "tags": ["GAAP", "accounting"]
+    },
+    {
+      "title": "Finra BrokerCheck",
+      "subtitle": "Verify financial advisors and firms",
+      "kind": "Helpful Links",
+      "url": "https://brokercheck.finra.org/",
+      "tags": ["FINRA", "investing"]
+    },
+    {
+      "title": "Census Bureau — Economic Indicators",
+      "subtitle": "Official U.S. business statistics",
+      "kind": "Helpful Links",
+      "url": "https://www.census.gov/economic-indicators/",
+      "tags": ["macro", "data"]
+    },
+    {
+      "title": "SBA — Business Guide",
+      "subtitle": "Start, manage, and grow your business",
+      "kind": "Helpful Links",
+      "url": "https://www.sba.gov/business-guide",
+      "tags": ["SBA", "small business", "setup"]
     }
 ]

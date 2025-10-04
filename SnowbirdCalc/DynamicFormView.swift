@@ -715,7 +715,7 @@ fileprivate struct SignerRow: View {
     }
 }
 
-// MARK: - Preview Sheet (PDF export disabled)
+// MARK: - Preview Sheet (PDF export disabled, adds Save as Draft)
 public struct ResolutionPreviewSheet: View {
     let title: String
     let content: String
@@ -758,10 +758,13 @@ public struct ResolutionPreviewSheet: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Menu {
+                        // Keep plain PDF; remove Snowbird letterhead option
                         Button("Export PDF (Plain)") { exportPDF(includeLetterhead: false) }
-                        Button("Export PDF (Snowbird Letterhead)") { exportPDF(includeLetterhead: true) }
+
+                        // New: Save as Draft (.rtf) — file name is prefixed with DRAFT-
+                        Button("Save as Draft (.rtf)") { saveDraftRTF() }
                     } label: {
-                        Label("Export", systemImage: "square.and.arrow.up")
+                        Label("Share", systemImage: "square.and.arrow.up")
                     }
                 }
             }
@@ -774,8 +777,88 @@ public struct ResolutionPreviewSheet: View {
     private func exportPDF(includeLetterhead: Bool) {
         // Stub: wire up your PDF exporter here
         print("📄 Export PDF tapped (includeLetterhead=\(includeLetterhead)) — currently disabled.")
-        // shareURL = generatedURL
-        // showingShare = true
+        // Example of presenting a generated file:
+        // self.shareURL = generatedURL
+        // self.showingShare = true
+    }
+
+    /// Builds an RTF file (Word/Pages compatible) with a DRAFT- prefixed name
+    /// and presents the iOS share/save sheet so the user can pick a location.
+    private func saveDraftRTF() {
+        let fileName = "DRAFT-\(sanitized(title.isEmpty ? "Resolution" : title)).rtf"
+
+        // Compose an attributed document: Title, body (markdown if available), signatures
+        let doc = NSMutableAttributedString()
+
+        // Title
+        let titleAttr = NSAttributedString(
+            string: (title.isEmpty ? "Resolution" : title) + "\n\n",
+            attributes: [
+                .font: UIFont.preferredFont(forTextStyle: .title2),
+                .paragraphStyle: {
+                    let p = NSMutableParagraphStyle()
+                    p.alignment = .left
+                    p.paragraphSpacing = 8
+                    return p
+                }()
+            ]
+        )
+        doc.append(titleAttr)
+
+        // Body (try markdown -> attributed)
+        if let md = try? AttributedString(markdown: content) {
+            let bodyAttr = NSAttributedString(md)
+            doc.append(NSMutableAttributedString(attributedString: bodyAttr))
+            doc.append(NSAttributedString(string: "\n\n"))
+        } else {
+            doc.append(NSAttributedString(string: content + "\n\n"))
+        }
+
+        // Signatures
+        if !signatureBlocks.isEmpty {
+            doc.append(NSAttributedString(string: "Signatures\n", attributes: [
+                .font: UIFont.preferredFont(forTextStyle: .headline)
+            ]))
+
+            let dateFmt = DateFormatter()
+            dateFmt.dateFormat = "yyyy-MM-dd"
+
+            for block in signatureBlocks {
+                // (Optional) inline a simple signature line; images are not embedded in RTF here
+                let sigText =
+                """
+                /s/ \(block.name)
+                \(block.title.isEmpty ? "" : "\(block.title)\n")Electronic Signature — \(dateFmt.string(from: block.date))
+
+                """
+                doc.append(NSAttributedString(string: sigText))
+            }
+        }
+
+        // Generate RTF data
+        let rtfOpts: [NSAttributedString.DocumentAttributeKey: Any] = [
+            .documentType: NSAttributedString.DocumentType.rtf
+        ]
+        do {
+            let rtfData = try doc.data(from: NSRange(location: 0, length: doc.length),
+                                       documentAttributes: rtfOpts)
+
+            // Write to a temporary URL
+            let tmp = FileManager.default.temporaryDirectory
+            let url = tmp.appendingPathComponent(fileName)
+            try rtfData.write(to: url, options: .atomic)
+
+            // Present share sheet so user can "Save to Files", AirDrop, etc.
+            self.shareURL = url
+            self.showingShare = true
+        } catch {
+            print("❌ Failed to create RTF draft: \(error)")
+        }
+    }
+
+    private func sanitized(_ s: String) -> String {
+        let invalid = CharacterSet(charactersIn: "/\\?%*|\"<>:").union(.newlines)
+        return s.components(separatedBy: invalid).joined().trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
 
@@ -798,7 +881,7 @@ fileprivate struct SignatureBlockView: View {
             }
 
             Text("/s/ \(block.name)")
-                .font(.body).bold()
+                .font(.body.weight(.semibold))
 
             if !block.title.isEmpty {
                 Text(block.title)
