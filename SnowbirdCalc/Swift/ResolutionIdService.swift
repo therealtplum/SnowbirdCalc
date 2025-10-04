@@ -1,33 +1,47 @@
 import Foundation
+import Combine
+import SwiftUI
 
-public struct ResolutionRegister: Codable, Equatable {
-    public struct Key: Hashable, Codable {
-        public let entityId: String
-        public let year: Int
+// MARK: - Pure value types (non-isolated)
 
-        // Public init so you can construct keys outside the module if needed
-        public init(entityId: String, year: Int) {
-            self.entityId = entityId
-            self.year = year
-        }
-    }
-
-    public var counters: [Key:Int]
-
-    // ✅ Public initializer (with default) so it’s legal in a public default argument
-    public init(counters: [Key:Int] = [:]) {
-        self.counters = counters
+public struct ResolutionKey: Hashable, Codable, Sendable {
+    public let entityId: String
+    public let year: Int
+    public init(entityId: String, year: Int) {
+        self.entityId = entityId
+        self.year = year
     }
 }
 
-public final class ResolutionIdService {
-    private var register: ResolutionRegister
+public struct ResolutionRegister: Codable, Equatable, Sendable {
+    public typealias Key = ResolutionKey
+    public var counters: [Key: Int]
 
-    // ✅ Now valid: uses the public init above
-    public init(loaded: ResolutionRegister = ResolutionRegister()) {
+    public init(counters: [Key: Int]) {
+        self.counters = counters
+    }
+
+    /// Convenience empty factory so you don't use default args across isolation
+    public static let empty = ResolutionRegister(counters: [:])
+}
+
+// MARK: - Service (UI/ObservableObject). Keep this on the main actor.
+
+@MainActor
+public final class ResolutionIdService: ObservableObject {
+    @Published public private(set) var register: ResolutionRegister
+
+    /// Explicit initializer (no default-arg crossing isolation)
+    public init(loaded: ResolutionRegister) {
         self.register = loaded
     }
 
+    /// No-arg convenience init
+    public convenience init() {
+        self.init(loaded: .empty)
+    }
+
+    @discardableResult
     public func nextSequence(entityId: String, year: Int) -> Int {
         let key = ResolutionRegister.Key(entityId: entityId, year: year)
         let next = (register.counters[key] ?? 0) + 1
@@ -41,12 +55,18 @@ public final class ResolutionIdService {
         return "\(entityId)-\(year)-\(seq)-RES-\(typeTag)"
     }
 
+    // MARK: Persistence
+
     public func save(to url: URL) throws {
         let data = try JSONEncoder().encode(register)
         try data.write(to: url, options: .atomic)
     }
 
     public static func load(from url: URL) -> ResolutionRegister {
-        (try? JSONDecoder().decode(ResolutionRegister.self, from: (try? Data(contentsOf: url)) ?? Data())) ?? ResolutionRegister()
+        guard let data = try? Data(contentsOf: url),
+              let reg = try? JSONDecoder().decode(ResolutionRegister.self, from: data) else {
+            return .empty
+        }
+        return reg
     }
 }

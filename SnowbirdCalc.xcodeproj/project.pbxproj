@@ -29,33 +29,9 @@
 		C42020B42E8B61E4008A447E /* SnowbirdCalcUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SnowbirdCalcUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		C4EF87882E90A98900B6DB91 /* Exceptions for "SnowbirdCalc" folder in "SnowbirdCalc" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Utilities/Helpers.swift,
-			);
-			target = C420209C2E8B61E3008A447E /* SnowbirdCalc */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-		C4EF87892E90A98900B6DB91 /* Exceptions for "SnowbirdCalc" folder in "Copy Bundle Resources" phase from "SnowbirdCalc" target */ = {
-			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
-			buildPhase = C4EF87772E8F5C1F00B6DB91 /* Resources */;
-			membershipExceptions = (
-				Utilities/Helpers.swift,
-			);
-		};
-/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		C420209F2E8B61E3008A447E /* SnowbirdCalc */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				C4EF87882E90A98900B6DB91 /* Exceptions for "SnowbirdCalc" folder in "SnowbirdCalc" target */,
-				C4EF87892E90A98900B6DB91 /* Exceptions for "SnowbirdCalc" folder in "Copy Bundle Resources" phase from "SnowbirdCalc" target */,
-			);
 			path = SnowbirdCalc;
 			sourceTree = "<group>";
 		};
