@@ -17,16 +17,12 @@
       "label": "Officer Title",
       "type": "enum",
       "options": [
-        "Chief Executive Officer",
         "President",
-        "Vice President",
-        "Secretary",
-        "Treasurer",
         "CFO",
         "COO",
         "Manager",
         "Director",
-        "Agent",
+        "Spokesperson",
         "Other"
       ],
       "required": true
