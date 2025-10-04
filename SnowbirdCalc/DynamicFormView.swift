@@ -98,9 +98,17 @@ extension DynamicFormView {
         }
     }
 
+    // ✅ Writes today's date back on first read, so the model is never nil
     fileprivate func dateField(_ field: FormTemplate.Field) -> some View {
         let binding = Binding<Date>(
-            get: { dateFromISO((values[field.id] as? String)) ?? Date() },
+            get: {
+                if let iso = values[field.id] as? String, let d = dateFromISO(iso) {
+                    return d
+                }
+                let today = Calendar.current.startOfDay(for: Date())
+                values[field.id] = isoDate(today)
+                return today
+            },
             set: { values[field.id] = isoDate($0) }
         )
         return Section(header: Text(field.label)) {
@@ -145,17 +153,34 @@ extension DynamicFormView {
         return Toggle(isOn: binding) { Text(field.label) }
     }
 
+    // ✅ NO early returns; single Section with internal branching
     fileprivate func enumField(_ field: FormTemplate.Field) -> some View {
         let options = field.options ?? []
-        let binding = Binding<String>(
-            get: { (values[field.id] as? String) ?? options.first ?? "" },
+
+        // Prepare selection binding (writes default on first read)
+        let selection = Binding<String>(
+            get: {
+                if let current = values[field.id] as? String, options.contains(current) {
+                    return current
+                }
+                if let def = options.first {
+                    values[field.id] = def
+                    return def
+                }
+                return "" // placeholder when options are empty
+            },
             set: { values[field.id] = $0 }
         )
+
         return Section(header: Text(field.label)) {
-            Picker(field.label, selection: binding) {
-                ForEach(options, id: \.self) { Text($0).tag($0) }
+            if options.isEmpty {
+                Text("No options available").foregroundStyle(.secondary)
+            } else {
+                Picker(field.label, selection: selection) {
+                    ForEach(options, id: \.self) { Text($0).tag($0) }
+                }
+                .pickerStyle(.menu)
             }
-            .pickerStyle(.menu)
         }
     }
 
@@ -181,30 +206,46 @@ extension DynamicFormView {
         }
     }
 
+    // ✅ NO early returns; single Section with internal branching
     fileprivate func entityField(_ field: FormTemplate.Field) -> some View {
         let entities = directory.dir.entities
         let ids = entities.map { $0.id }
+
+        // Prepare selection binding (writes first entity on first read)
         let selection = Binding<String>(
-            get: { (values[field.id] as? [String:Any])?["id"] as? String ?? ids.first ?? "" },
+            get: {
+                if let dict = values[field.id] as? [String: Any],
+                   let id = dict["id"] as? String,
+                   ids.contains(id) {
+                    return id
+                }
+                if let first = entities.first {
+                    values[field.id] = dumpEntity(first)
+                    return first.id
+                }
+                return "" // placeholder when empty
+            },
             set: { newId in values[field.id] = dumpEntity(directory.entity(by: newId)) }
         )
+
         return Section(header: Text(field.label)) {
-            Picker(field.label, selection: selection) {
-                ForEach(entities, id: \.id) { e in
-                    VStack(alignment: .leading) {
-                        Text(e.legalName).font(.body)
-                        if let j = e.jurisdiction {
-                            Text("\(e.id) • \(j)").font(.caption).foregroundColor(.secondary)
+            if entities.isEmpty {
+                Text("No entities found").foregroundStyle(.secondary)
+            } else {
+                Picker(field.label, selection: selection) {
+                    ForEach(entities, id: \.id) { e in
+                        VStack(alignment: .leading) {
+                            Text(e.legalName).font(.body)
+                            if let j = e.jurisdiction {
+                                Text("\(e.id) • \(j)")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
+                        .tag(e.id)
                     }
-                    .tag(e.id)
                 }
-            }
-            .pickerStyle(.menu)
-        }
-        .onAppear {
-            if values[field.id] == nil, let first = entities.first {
-                values[field.id] = dumpEntity(first)
+                .pickerStyle(.menu)
             }
         }
     }
@@ -376,7 +417,7 @@ extension DynamicFormView {
     fileprivate func optLabel(_ raw: String) -> String { raw }
 
     fileprivate func primeDefaults() {
-        // seed default dates to today where missing
+        // seed default dates to today where missing (helps before field renders)
         for f in template.fields where f.type == "date" && values[f.id] == nil {
             values[f.id] = isoDate(Date())
         }
