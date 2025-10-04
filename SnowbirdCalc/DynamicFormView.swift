@@ -22,16 +22,16 @@ public struct DynamicFormView: View {
     @State private var renderedBody: String = ""
     @State private var formErrors: [String] = []
 
-    // multi-signer flow
+    // multi-signer flow (type == "signers")
     @State private var selectedSignerIDs: Set<UUID> = []
     @State private var pinQueue: [UUID] = []
     @State private var pinSheetSigner: Signer?
     @State private var pendingCompletion: (() -> Void)?
     @State private var pinError: String?
 
-    // signerSelect (single dropdown) flow
-    @State private var signerSelectSelections: [String: String] = [:]
-    @State private var signerSelectStaging: [String: String] = [:]  // fieldId -> staged signerId
+    // single-select flow (type == "signerSelect")
+    @State private var signerSelectSelections: [String: String] = [:]  // fieldId -> verified signerId
+    @State private var signerSelectStaging: [String: String] = [:]     // fieldId -> staged signerId (for UI)
     @State private var pinVerifyFieldId: String?
     @State private var pinVerifySigner: Signer?
     @State private var pinVerifyError: String?
@@ -65,7 +65,7 @@ public struct DynamicFormView: View {
             .sheet(isPresented: $showPreview) {
                 ResolutionPreviewSheet(title: renderedTitle, content: renderedBody)
             }
-            // multi-signer PIN queue sheet
+            // Multi-signer PIN queue
             .sheet(item: $pinSheetSigner, onDismiss: {
                 pinQueue.removeAll(); pendingCompletion = nil
             }) { signer in
@@ -89,13 +89,13 @@ public struct DynamicFormView: View {
                     }
                 )
             }
+            // Single-select PIN prompt
             .sheet(item: $pinVerifySigner) { signer in
                 PinVerifySheet(
                     signerName: signer.fullName,
                     onSubmit: { pin in
                         if signerStore.verifyPIN(pin, for: signer.id) {
                             if let fieldId = pinVerifyFieldId {
-                                // ✅ Commit verified choice to both maps and values[]
                                 signerSelectSelections[fieldId] = signer.id.uuidString
                                 signerSelectStaging[fieldId]    = signer.id.uuidString
                                 values[fieldId] = [
@@ -111,7 +111,6 @@ public struct DynamicFormView: View {
                         }
                     },
                     onCancel: {
-                        // ❌ Revert the UI back to the last verified selection
                         if let fieldId = pinVerifyFieldId {
                             signerSelectStaging[fieldId] = signerSelectSelections[fieldId] ?? ""
                         }
@@ -138,19 +137,19 @@ extension DynamicFormView {
     @ViewBuilder
     fileprivate func fieldView(_ field: FormTemplate.Field) -> some View {
         switch field.type {
-        case "text":       textField(field)
-        case "multiline":  multilineField(field)
-        case "date":       dateField(field)
-        case "money":      moneyField(field)
-        case "number":     numberField(field)
-        case "boolean":    booleanField(field)
-        case "enum":       enumField(field)
+        case "text":        textField(field)
+        case "multiline":   multilineField(field)
+        case "date":        dateField(field)
+        case "money":       moneyField(field)
+        case "number":      numberField(field)
+        case "boolean":     booleanField(field)
+        case "enum":        enumField(field)
         case "multiselect": multiselectField(field)
-        case "entity":     entityField(field)
-        case "signer":     legacySignerField(field)   // old manual
-        case "signerSelect": signerSelectField(field) // dropdown w/ PIN
-        case "signers":    authorizedSignersField(field) // multi-select w/ PIN queue
-        case "computed":   EmptyView()
+        case "entity":      entityField(field)
+        case "signer":      legacySignerField(field)         // old manual array of signers
+        case "signerSelect": signerSelectField(field)        // dropdown (PIN-gated)
+        case "signers":     authorizedSignersField(field)    // multi-select (PIN-gated on Generate)
+        case "computed":    EmptyView()
         default:
             Text("Unsupported field type: \(field.type)").foregroundColor(.orange)
         }
@@ -244,68 +243,6 @@ extension DynamicFormView {
         }
     }
 
-    fileprivate func signerSelectField(_ field: FormTemplate.Field) -> some View {
-        let approved = signerStore.signers.filter { $0.isActive }
-        let fieldId = field.id
-
-        // Verified selection (what's actually saved in values[])
-        let verified = signerSelectSelections[fieldId] ?? ""
-
-        // Staged selection drives the Picker UI
-        let staged = Binding<String>(
-            get: { signerSelectStaging[fieldId] ?? verified },
-            set: { newId in
-                // Update UI right away so the menu closes
-                signerSelectStaging[fieldId] = newId
-
-                // If it's different and valid, launch PIN; otherwise do nothing
-                guard !newId.isEmpty, newId != verified,
-                      let signer = approved.first(where: { $0.id.uuidString == newId }) else { return }
-
-                // Present after menu dismisses
-                DispatchQueue.main.async {
-                    pinVerifyFieldId = fieldId
-                    pinVerifySigner  = signer
-                }
-            }
-        )
-
-        return Section(header: Text(field.label)) {
-            if approved.isEmpty {
-                Text("No approved signers available").foregroundStyle(.secondary)
-            } else {
-                Picker(field.label, selection: staged) {
-                    Text("Select...").tag("")
-
-                    ForEach(approved, id: \.id) { s in
-                        // IMPORTANT: tag the OUTER view, not the inner Text
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(s.fullName)
-                            if let t = s.title, !t.isEmpty {
-                                Text(t).font(.caption).foregroundStyle(.secondary)
-                            }
-                        }
-                        .tag(s.id.uuidString)
-                    }
-                }
-                .pickerStyle(.menu)
-            }
-        }
-        .onAppear {
-            // Keep staging in sync with verified value when the field first appears
-            if signerSelectStaging[fieldId] == nil {
-                if let dict = values[fieldId] as? [String: Any],
-                   let id = dict["id"] as? String,
-                   approved.contains(where: { $0.id.uuidString == id }) {
-                    signerSelectSelections[fieldId] = id
-                    signerSelectStaging[fieldId] = id
-                } else {
-                    signerSelectStaging[fieldId] = verified
-                }
-            }
-        }
-    }
-
     fileprivate func booleanField(_ field: FormTemplate.Field) -> some View {
         let binding = Binding<Bool>(
             get: { (values[field.id] as? Bool) ?? false },
@@ -330,7 +267,8 @@ extension DynamicFormView {
             } else {
                 Picker(field.label, selection: selection) {
                     ForEach(options, id: \.self) { Text($0).tag($0) }
-                }.pickerStyle(.menu)
+                }
+                .pickerStyle(.menu)
             }
         }
     }
@@ -352,7 +290,7 @@ extension DynamicFormView {
                         selected.wrappedValue = set
                     }
                 )
-                Toggle(isOn: isOn) { Text(optLabel(opt)) }
+                Toggle(isOn: isOn) { Text(opt) }
             }
         }
     }
@@ -384,14 +322,72 @@ extension DynamicFormView {
                             if let j = e.jurisdiction {
                                 Text("\(e.id) • \(j)").font(.caption).foregroundStyle(.secondary)
                             }
-                        }.tag(e.id)
+                        }
+                        .tag(e.id)
                     }
-                }.pickerStyle(.menu)
+                }
+                .pickerStyle(.menu)
             }
         }
     }
 
-    // Legacy signer text fields
+    // Single-select signer dropdown (PIN-gated)
+    fileprivate func signerSelectField(_ field: FormTemplate.Field) -> some View {
+        let approved = signerStore.signers.filter { $0.isActive }
+        let fieldId = field.id
+
+        // Verified selection (what's committed to values[])
+        let verified = signerSelectSelections[fieldId] ?? ""
+
+        // Staged selection drives the Picker UI
+        let staged = Binding<String>(
+            get: { signerSelectStaging[fieldId] ?? verified },
+            set: { newId in
+                signerSelectStaging[fieldId] = newId  // update UI immediately so menu closes
+                guard !newId.isEmpty, newId != verified,
+                      let signer = approved.first(where: { $0.id.uuidString == newId }) else { return }
+                // present PIN after menu closes
+                DispatchQueue.main.async {
+                    pinVerifyFieldId = fieldId
+                    pinVerifySigner  = signer
+                }
+            }
+        )
+
+        return Section(header: Text(field.label)) {
+            if approved.isEmpty {
+                Text("No approved signers available").foregroundStyle(.secondary)
+            } else {
+                Picker(field.label, selection: staged) {
+                    Text("Select...").tag("")
+                    ForEach(approved, id: \.id) { s in
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(s.fullName)
+                            if let t = s.title, !t.isEmpty {
+                                Text(t).font(.caption).foregroundStyle(.secondary)
+                            }
+                        }
+                        .tag(s.id.uuidString) // tag the outer view
+                    }
+                }
+                .pickerStyle(.menu)
+            }
+        }
+        .onAppear {
+            if signerSelectStaging[fieldId] == nil {
+                if let dict = values[fieldId] as? [String: Any],
+                   let id = dict["id"] as? String,
+                   approved.contains(where: { $0.id.uuidString == id }) {
+                    signerSelectSelections[fieldId] = id
+                    signerSelectStaging[fieldId] = id
+                } else {
+                    signerSelectStaging[fieldId] = verified
+                }
+            }
+        }
+    }
+
+    // Legacy manual signer array inputs
     fileprivate func legacySignerField(_ field: FormTemplate.Field) -> some View {
         let minItems = field.minItems ?? 0
         let list = (values[field.id] as? [[String:Any]]) ?? []
@@ -426,6 +422,7 @@ extension DynamicFormView {
         }
     }
 
+    // Multi-select approved signers (for templates needing >1 approver)
     fileprivate func authorizedSignersField(_ field: FormTemplate.Field) -> some View {
         Section(header: Text(field.label)) {
             SignerPickerView(store: signerStore, selected: $selectedSignerIDs)
@@ -465,6 +462,7 @@ extension DynamicFormView {
     }
 
     private func renderAndShowPreview() {
+        // computed resolutionId support
         if let comp = template.fields.first(where: { $0.id == "resolutionId" })?.compute,
            comp.fn == "generateResolutionId" {
             let entityId: String = (try? ValuesBag(values).valueAt(comp.args["entityIdPath"] ?? "")) ?? ""
@@ -475,12 +473,16 @@ extension DynamicFormView {
             values["resolutionId"] = rid
         }
 
+        // multi-select signer injection (ids + names/titles)
         if !selectedSignerIDs.isEmpty {
             values["approvedSignerIds"] = selectedSignerIDs.map { $0.uuidString }
             values["approvedSigners"] = signerStore.signers
                 .filter { selectedSignerIDs.contains($0.id) }
                 .map { ["name": $0.fullName, "title": $0.title ?? ""] }
         }
+
+        // single-select signer convenience keys
+        injectSignerValuesForTemplates(into: &values)
 
         var bag = ValuesBag(values)
         let engine = MustacheLite()
@@ -492,8 +494,8 @@ extension DynamicFormView {
         let body = engine.render(template.document.bodyMd, values: &bbag)
 
         renderedTitle = title
-        renderedBody = body
-        showPreview = true
+        renderedBody  = body
+        showPreview   = true
     }
 
     fileprivate func beginSignerVerification(then completion: @escaping () -> Void) {
@@ -525,6 +527,7 @@ extension DynamicFormView {
             let aStr = (values[field.id] as? String) ?? ""
             let bStr = (values[gte] as? String) ?? ""
             if let a = dateFromISO(aStr), let b = dateFromISO(bStr), a >= b {
+                // ok
             } else if !aStr.isEmpty && !bStr.isEmpty {
                 formErrors.append(rule.message ?? "\(field.label) must be on/after \(gte)")
             }
@@ -599,9 +602,42 @@ extension DynamicFormView {
             values[f.id] = isoDate(Date())
         }
     }
+
+    /// Inject signer-friendly keys for Mustache templates (single & multi)
+    fileprivate func injectSignerValuesForTemplates(into values: inout [String: Any]) {
+        var firstSignerSelectDict: [String: Any]? = nil
+
+        for f in template.fields where f.type == "signerSelect" {
+            if let dict = values[f.id] as? [String: Any],
+               let id = dict["id"] as? String, !id.isEmpty {
+
+                if firstSignerSelectDict == nil { firstSignerSelectDict = dict }
+
+                var signerFields = (values["signerFields"] as? [String: Any]) ?? [:]
+                signerFields[f.id] = dict
+                values["signerFields"] = signerFields
+
+                if f.id == "approvingSigner" {
+                    values["approvingSigner"] = dict
+                }
+            }
+        }
+
+        if values["approvingSigner"] == nil, let first = firstSignerSelectDict {
+            values["approvingSigner"] = first
+        }
+
+        if !selectedSignerIDs.isEmpty {
+            let arr = signerStore.signers
+                .filter { selectedSignerIDs.contains($0.id) }
+                .map { ["name": $0.fullName, "title": $0.title ?? ""] }
+            values["approvedSigners"] = arr
+            values["approvedSignerIds"] = selectedSignerIDs.map { $0.uuidString }
+        }
+    }
 }
 
-// MARK: - Legacy SignerRow
+// MARK: - Legacy SignerRow (manual entry)
 fileprivate struct SignerRow: View {
     let index: Int
     @State var name: String
@@ -676,7 +712,7 @@ fileprivate struct ResolutionShareSheet: UIViewControllerRepresentable {
 }
 #endif
 
-// MARK: - PIN Verify Sheet
+// MARK: - PIN Verify Sheet (for single-select)
 fileprivate struct PinVerifySheet: View {
     let signerName: String
     var onSubmit: (String) -> Void
@@ -690,7 +726,7 @@ fileprivate struct PinVerifySheet: View {
                 Section("Verify \(signerName)") {
                     SecureField("4-digit PIN", text: $pin)
                         .keyboardType(.numberPad)
-                        .onChange(of: pin) { _, new in
+                        .onChange(of: pin) { new in
                             pin = String(new.filter(\.isNumber).prefix(4))
                         }
                         .multilineTextAlignment(.center)
