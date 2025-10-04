@@ -10,6 +10,21 @@ import Foundation
 import CryptoKit
 import Security
 import Combine
+import UIKit
+
+extension SignerStore {
+    // Simple hook: return a per-signer signature image if you have one.
+    // Swap this to load from disk/Documents if you import from Files later.
+    func signatureImage(for signerID: UUID) -> UIImage? {
+        // Example: hard-wire Thomas’s image by email or UUID.
+        if let s = signers.first(where: { $0.id == signerID }) {
+            if s.email?.lowercased() == "tom@snowbirdcap.com" {
+                return UIImage(named: "ThomasSignature")
+            }
+        }
+        return nil
+    }
+}
 
 public final class SignerStore: ObservableObject {
     @Published public private(set) var signers: [Signer] = []

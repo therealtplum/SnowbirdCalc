@@ -8,6 +8,16 @@
 import SwiftUI
 import Foundation
 import UniformTypeIdentifiers
+import UIKit
+
+// One rendered signature block shown under the resolution preview
+struct SignatureBlock: Identifiable {
+    let id = UUID()
+    let name: String
+    let title: String
+    let date: Date
+    let image: UIImage?
+}
 
 public struct DynamicFormView: View {
     public let template: FormTemplate
@@ -36,6 +46,9 @@ public struct DynamicFormView: View {
     @State private var pinVerifySigner: Signer?
     @State private var pinVerifyError: String?
 
+    // preview
+    @State private var signatureBlocks: [SignatureBlock] = []
+
     public init(template: FormTemplate, directory: DirectoryStore, idService: ResolutionIdService) {
         self.template = template
         self.directory = directory
@@ -63,7 +76,11 @@ public struct DynamicFormView: View {
                 }
             }
             .sheet(isPresented: $showPreview) {
-                ResolutionPreviewSheet(title: renderedTitle, content: renderedBody)
+                ResolutionPreviewSheet(
+                    title: renderedTitle,
+                    content: renderedBody,
+                    signatureBlocks: signatureBlocks
+                )
             }
             // Multi-signer PIN queue
             .sheet(item: $pinSheetSigner, onDismiss: {
@@ -493,6 +510,44 @@ extension DynamicFormView {
         var bbag = bag
         let body = engine.render(template.document.bodyMd, values: &bbag)
 
+        // Build signature blocks from whichever signer fields you use
+        var blocks: [SignatureBlock] = []
+
+        // 1) multi-select case (type == "signers")
+        let multi = signerStore.signers.filter { selectedSignerIDs.contains($0.id) }
+        for s in multi {
+            blocks.append(SignatureBlock(
+                name: s.fullName,
+                title: s.title ?? "",
+                date: Date(),
+                image: signerStore.signatureImage(for: s.id)
+            ))
+        }
+
+        // 2) single-select case(s) (type == "signerSelect")
+        for f in template.fields where f.type == "signerSelect" {
+            if let dict = values[f.id] as? [String: Any],
+               let idStr = dict["id"] as? String,
+               let uuid = UUID(uuidString: idStr),
+               let s = signerStore.signers.first(where: { $0.id == uuid }) {
+                blocks.append(SignatureBlock(
+                    name: s.fullName,
+                    title: s.title ?? "",
+                    date: Date(),
+                    image: signerStore.signatureImage(for: s.id)
+                ))
+            }
+        }
+
+        // de-dup if the same signer appears twice
+        var seen = Set<String>()
+        signatureBlocks = blocks.filter { block in
+            let key = block.name + "|" + block.title
+            if seen.contains(key) { return false }
+            seen.insert(key)
+            return true
+        }
+
         renderedTitle = title
         renderedBody  = body
         showPreview   = true
@@ -662,6 +717,7 @@ fileprivate struct SignerRow: View {
 public struct ResolutionPreviewSheet: View {
     let title: String
     let content: String
+    let signatureBlocks: [SignatureBlock]
     @Environment(\.dismiss) private var dismiss
 
     @State private var showingShare = false
@@ -670,25 +726,41 @@ public struct ResolutionPreviewSheet: View {
     public var body: some View {
         NavigationView {
             ScrollView {
-                VStack(alignment: .leading, spacing: 12) {
-                    Text(title).font(.title3).bold()
+                VStack(alignment: .leading, spacing: 16) {
+                    Text(title)
+                        .font(.title3).bold()
+
                     Divider()
+
+                    // Render markdown if possible, otherwise plain text
                     if let attributed = try? AttributedString(markdown: content) {
                         Text(attributed).font(.body)
                     } else {
                         Text(content).font(.body)
+                    }
+
+                    // Always render signature blocks AFTER the content
+                    if !signatureBlocks.isEmpty {
+                        Divider().padding(.top, 8)
+                        ForEach(signatureBlocks) { block in
+                            SignatureBlockView(block: block)
+                        }
                     }
                 }
                 .padding()
             }
             .navigationTitle("Preview")
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button("Done") { dismiss() } }
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Done") { dismiss() }
+                }
                 ToolbarItem(placement: .confirmationAction) {
                     Menu {
                         Button("Export PDF (Plain)") { exportPDF(includeLetterhead: false) }
                         Button("Export PDF (Snowbird Letterhead)") { exportPDF(includeLetterhead: true) }
-                    } label: { Label("Export", systemImage: "square.and.arrow.up") }
+                    } label: {
+                        Label("Export", systemImage: "square.and.arrow.up")
+                    }
                 }
             }
             .sheet(isPresented: $showingShare) {
@@ -698,7 +770,52 @@ public struct ResolutionPreviewSheet: View {
     }
 
     private func exportPDF(includeLetterhead: Bool) {
+        // Stub: wire up your PDF exporter here
         print("📄 Export PDF tapped (includeLetterhead=\(includeLetterhead)) — currently disabled.")
+        // shareURL = generatedURL
+        // showingShare = true
+    }
+}
+
+// Renders one signature block (image + /s/ + title + date)
+fileprivate struct SignatureBlockView: View {
+    let block: SignatureBlock
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            if let img = block.image {
+                Image(uiImage: img)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: 220)
+                    .padding(.bottom, 2)
+            } else {
+                Text("(No signature image on file)")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+
+            Text("/s/ \(block.name)")
+                .font(.body).bold()
+
+            if !block.title.isEmpty {
+                Text(block.title)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+
+            Text("Electronic Signature — \(format(block.date))")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .padding(.top, 2)
+        }
+        .padding(.vertical, 6)
+    }
+
+    private func format(_ date: Date) -> String {
+        let df = DateFormatter()
+        df.dateFormat = "yyyy-MM-dd"
+        return df.string(from: date)
     }
 }
 
