@@ -647,6 +647,8 @@ extension DynamicFormView {
             "ein": e.ein ?? "",
             "effectiveDate": e.effectiveDate ?? "",
             "status": e.status ?? ""
+            "address": e.address ?? "",
+            "email": e.email ?? ""
         ]
     }
 

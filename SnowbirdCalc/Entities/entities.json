@@ -9,7 +9,9 @@
       "jurisdiction": "Delaware",
       "ein": "39-4175725",
       "effectiveDate": "2025-10-01",
-      "status": "Open"
+      "status": "Open",
+      "address": "8 The Green STE B\nDover, DE 19901",
+      "email": "admin@snowbirdcap.com"
     },
     {
       "id": "SMARK",
@@ -18,7 +20,9 @@
       "jurisdiction": "Delaware",
       "ein": "39-4233808",
       "effectiveDate": "2025-10-02",
-      "status": "Open"
+      "status": "Open",
+      "address": "8 The Green STE B\nDover, DE 19901",
+      "email": "markets@snowbirdcap.com"
     },
     {
       "id": "SROY",
@@ -27,7 +31,9 @@
       "jurisdiction": "Delaware",
       "ein": "39-4421921",
       "effectiveDate": "2025-10-02",
-      "status": "Open"
+      "status": "Open",
+      "address": "8 The Green STE B\nDover, DE 19901",
+      "email": "royalties@snowbirdcap.com"
     },
     {
       "id": "SFARM",
@@ -36,7 +42,9 @@
       "jurisdiction": "Delaware",
       "ein": "39-4284015",
       "effectiveDate": "2025-10-02",
-      "status": "Open"
+      "status": "Open",
+      "address": "8 The Green STE B\nDover, DE 19901",
+      "email": "farms@snowbirdcap.com"
     },
     {
       "id": "TPLUM",
@@ -45,7 +53,9 @@
       "jurisdiction": "Chicago, IL",
       "ein": null,
       "effectiveDate": "2025-08-29",
-      "status": "Open"
+      "status": "Open",
+      "address": null,
+      "email": "tom@snowbirdcap.com"
     }
   ]
 }

@@ -9,6 +9,8 @@ public struct EntityDirectory: Codable {
         public let ein: String?
         public let effectiveDate: String?
         public let status: String?
+        public let address: String?
+        public let email: String?
     }
     public let version: Int
     public let updatedAt: String
