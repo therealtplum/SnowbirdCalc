@@ -1,9 +1,15 @@
 import SwiftUI
 
 struct FormsRootView: View {
+    // MARK: - State
     @State private var selectedTemplate: FormTemplate?
     @State private var loadError: String?
+    @State private var showSigners = false
 
+    // MARK: - Environment
+    @EnvironmentObject private var signerStore: SignerStore
+
+    // MARK: - Services
     private let directory: DirectoryStore
     private let idService = ResolutionIdService()
 
@@ -25,7 +31,7 @@ struct FormsRootView: View {
             print("✅ Loaded entities from:", url.path)
         } else {
             print("⚠️ entities.json not found; using empty directory.")
-            self.directory = DirectoryStore.empty         // <-- requires the extension below
+            self.directory = DirectoryStore.empty
         }
     }
 
@@ -38,19 +44,50 @@ struct FormsRootView: View {
                         openTemplate(id)
                     } label: {
                         HStack {
-                            Image(systemName: icon(for: id))   // <-- fixed label
+                            Image(systemName: icon(for: id))
                             Text(title(for: id))
                             Spacer()
-                            Image(systemName: "chevron.right").foregroundStyle(.tertiary)
+                            Image(systemName: "chevron.right")
+                                .foregroundStyle(.tertiary)
                         }
+                    }
+                }
+            }
+
+            // Optional: quick access inside the list too (keep or remove)
+            Section("Administration") {
+                Button {
+                    showSigners = true
+                } label: {
+                    HStack {
+                        Image(systemName: "person.crop.rectangle.stack")
+                        Text("Manage Signatories")
+                        Spacer()
+                        Image(systemName: "chevron.up.chevron.down")
+                            .foregroundStyle(.tertiary)
                     }
                 }
             }
         }
         .navigationTitle("Forms")
-        // Present only when selectedTemplate is non-nil (prevents blank-first-open)
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showSigners = true
+                } label: {
+                    Label("Authorized Signatories", systemImage: "person.crop.rectangle.stack")
+                }
+            }
+        }
+        // Present preview form only when selectedTemplate is non-nil
         .sheet(item: $selectedTemplate) { tmpl in
             DynamicFormView(template: tmpl, directory: directory, idService: idService)
+                // signerStore is already available via environment, no need to inject again
+        }
+        // Present the Signers Manager
+        .sheet(isPresented: $showSigners) {
+            SignersManagerView()
+                .environmentObject(signerStore) // Explicit is fine; inherited env also works
         }
         .alert("Template missing", isPresented: .constant(loadError != nil)) {
             Button("OK") { loadError = nil }
@@ -99,7 +136,7 @@ struct FormsRootView: View {
 // If FormTemplate already has `id: String` from JSON, this is enough:
 extension FormTemplate: Identifiable {}
 
-// Add this once (any file) to provide a safe empty directory fallback.
+// Provide a safe empty directory fallback.
 extension DirectoryStore {
     static var empty: DirectoryStore {
         let tmp = URL(fileURLWithPath: NSTemporaryDirectory())
@@ -108,7 +145,6 @@ extension DirectoryStore {
             let minimal = #"{ "version":1, "updatedAt":"", "entities":[] }"#
             try? minimal.data(using: .utf8)?.write(to: tmp)
         }
-        // Force-unwrap is fine in dev; if you prefer, make it optional and handle nil.
         return try! DirectoryStore(jsonURL: tmp)
     }
 }

@@ -108,7 +108,7 @@
 
     { "id": "notes", "label": "Notes/Purpose (optional)", "type": "multiline" },
 
-    { "id": "signers", "label": "Approving Signers", "type": "signer", "minItems": 1, "required": true },
+    { "id": "signers", "label": "Approving Signers", "type": "signerSelect", "minItems": 1, "required": true },
 
     {
       "id": "resolutionId",

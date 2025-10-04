@@ -47,7 +47,7 @@
     {
       "id": "signingAuthority",
       "label": "Authorized Signers",
-      "type": "signer",
+      "type": "signerSelect",
       "repeatable": true,
       "minItems": 1
     },
