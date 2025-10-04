@@ -31,10 +31,7 @@
       "options": [
         "Checking",
         "Savings",
-        "Money Market",
-        "Operating",
-        "Payroll",
-        "Escrow"
+        "Brokerage",
       ],
       "required": true
     },
@@ -74,6 +71,6 @@
   ],
   "document": {
     "title": "{{resolutionId}} \u2014 Bank Account Opening",
-    "bodyMd": "# RESOLUTION OF {{entity.legalName}}\n\n**ID:** {{resolutionId}}\n\nAdopted on **{{date | longDate}}**.\n\nResolved, that **{{entity.legalName}}**, a {{entity.jurisdiction}} entity (EIN {{entity.ein}}), shall open a **{{accountType}}** account with **{{bankName}}**.\n\n**Purpose:** {{purpose}}\n\n**Authorized Signers:**\n{{#each signingAuthority}}\n- {{this.name}}, {{this.title}}\n{{/each}}\n\n{{#if limits}}\n**Transaction Limits:** {{limits}}\n{{/if}}\n\nAny prior resolutions that conflict with the foregoing are hereby revoked.\n\n{{#each signingAuthority}}\n---\n**{{this.name}}**  \n{{this.title}}  \n{{this.signatureBlock}}\n{{/each}}\n"
+    "bodyMd": "# RESOLUTION OF {{entity.legalName}}\n\n**ID:** {{resolutionId}}\n\n**Adopted on:** {{date | longDate}}\n\nResolved, that **{{entity.legalName}}**, a {{entity.jurisdiction}} entity (EIN {{entity.ein}}), shall open a **{{accountType}}** account with **{{bankName}}**.\n\n**Purpose:**\n{{purpose}}\n\n**Transaction Limits:**\n{{limits}}\n\n{{/if}}\nAny prior resolutions that conflict with the foregoing are hereby revoked."
   }
 }

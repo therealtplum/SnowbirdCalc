@@ -805,56 +805,73 @@ public struct ResolutionPreviewSheet: View {
         )
         doc.append(titleAttr)
 
-        // Body (try markdown -> attributed)
-        if let md = try? AttributedString(markdown: content) {
-            let bodyAttr = NSAttributedString(md)
-            doc.append(NSMutableAttributedString(attributedString: bodyAttr))
-            doc.append(NSAttributedString(string: "\n\n"))
-        } else {
-            doc.append(NSAttributedString(string: content + "\n\n"))
-        }
+        // Body (try markdown -> attributed, with robust options)
+            let mdOptions = AttributedString.MarkdownParsingOptions(
+                allowsExtendedAttributes: true,
+                interpretedSyntax: .full,
+                failurePolicy: .returnPartiallyParsedIfPossible
+            )
 
-        // Signatures
-        if !signatureBlocks.isEmpty {
-            doc.append(NSAttributedString(string: "Signatures\n", attributes: [
-                .font: UIFont.preferredFont(forTextStyle: .headline)
-            ]))
-
-            let dateFmt = DateFormatter()
-            dateFmt.dateFormat = "yyyy-MM-dd"
-
-            for block in signatureBlocks {
-                // (Optional) inline a simple signature line; images are not embedded in RTF here
-                let sigText =
-                """
-                /s/ \(block.name)
-                \(block.title.isEmpty ? "" : "\(block.title)\n")Electronic Signature — \(dateFmt.string(from: block.date))
-
-                """
-                doc.append(NSAttributedString(string: sigText))
+            if let md = try? AttributedString(markdown: content, options: mdOptions) {
+                let bodyAttr = NSAttributedString(md)
+                doc.append(NSMutableAttributedString(attributedString: bodyAttr))
+                doc.append(NSAttributedString(string: "\n\n"))
+            } else {
+                doc.append(NSAttributedString(string: content + "\n\n"))
             }
-        }
+
+        // Signatures (header + each signer with a blank line after)
+            if !signatureBlocks.isEmpty {
+                doc.append(NSAttributedString(string: "Signatures\n\n", attributes: [
+                    .font: UIFont.preferredFont(forTextStyle: .headline)
+                ]))
+
+                let dateFmt = DateFormatter()
+                dateFmt.dateFormat = "yyyy-MM-dd"
+
+                for (idx, block) in signatureBlocks.enumerated() {
+                    let sig =
+                    """
+                    /s/ \(block.name)
+                    \(block.title.isEmpty ? "" : "\(block.title)\n")Electronic Signature — \(dateFmt.string(from: block.date))
+
+                    """
+                    doc.append(NSAttributedString(string: sig))
+
+                    // Optional separator between multiple signers
+                    if idx < signatureBlocks.count - 1 {
+                        doc.append(NSAttributedString(string: "—\n\n"))
+                    }
+                }
+            }
+        
+        // Apply a gentle global paragraph style (after assembling everything)
+            let globalStyle = NSMutableParagraphStyle()
+            globalStyle.paragraphSpacingBefore = 0
+            globalStyle.paragraphSpacing = 6
+            doc.addAttribute(.paragraphStyle, value: globalStyle, range: NSRange(location: 0, length: doc.length))
 
         // Generate RTF data
-        let rtfOpts: [NSAttributedString.DocumentAttributeKey: Any] = [
-            .documentType: NSAttributedString.DocumentType.rtf
-        ]
-        do {
-            let rtfData = try doc.data(from: NSRange(location: 0, length: doc.length),
-                                       documentAttributes: rtfOpts)
+            let rtfOpts: [NSAttributedString.DocumentAttributeKey: Any] = [
+                .documentType: NSAttributedString.DocumentType.rtf
+            ]
 
-            // Write to a temporary URL
-            let tmp = FileManager.default.temporaryDirectory
-            let url = tmp.appendingPathComponent(fileName)
-            try rtfData.write(to: url, options: .atomic)
+            do {
+                let rtfData = try doc.data(from: NSRange(location: 0, length: doc.length),
+                                           documentAttributes: rtfOpts)
 
-            // Present share sheet so user can "Save to Files", AirDrop, etc.
-            self.shareURL = url
-            self.showingShare = true
-        } catch {
-            print("❌ Failed to create RTF draft: \(error)")
+                // Write to a temporary URL
+                let tmp = FileManager.default.temporaryDirectory
+                let url = tmp.appendingPathComponent(fileName)
+                try rtfData.write(to: url, options: .atomic)
+
+                // Present share sheet so user can "Save to Files", AirDrop, etc.
+                self.shareURL = url
+                self.showingShare = true
+            } catch {
+                print("❌ Failed to create RTF draft: \(error)")
+            }
         }
-    }
 
     private func sanitized(_ s: String) -> String {
         let invalid = CharacterSet(charactersIn: "/\\?%*|\"<>:").union(.newlines)
