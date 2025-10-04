@@ -13,6 +13,7 @@ struct FormsRootView: View {
     private let directory: DirectoryStore
     private let idService = ResolutionIdService()
 
+    /// Use canonical template IDs (not filenames). Loader will resolve by id even if filenames change.
     private let templateIds = [
         "resolution.distribution.v1",
         "resolution.bank.open.v1",
@@ -54,7 +55,6 @@ struct FormsRootView: View {
                 }
             }
 
-            // Optional: quick access inside the list too (keep or remove)
             Section("Administration") {
                 Button {
                     showSigners = true
@@ -82,7 +82,6 @@ struct FormsRootView: View {
         // Present preview form only when selectedTemplate is non-nil
         .sheet(item: $selectedTemplate) { tmpl in
             DynamicFormView(template: tmpl, directory: directory, idService: idService)
-                // signerStore is already available via environment, no need to inject again
         }
         // Present the Signers Manager
         .sheet(isPresented: $showSigners) {
@@ -97,23 +96,76 @@ struct FormsRootView: View {
     }
 
     // MARK: - Actions
-    private func openTemplate(_ name: String) {
-        guard let tmpl = loadTemplate(name) else {
-            loadError = "Couldn’t load \(name).json. Check Templates/ and filename."
+    private func openTemplate(_ id: String) {
+        guard let tmpl = loadTemplate(byId: id) else {
+            loadError = "Couldn’t load a template with id '\(id)'. Check Templates/ and JSON id."
             return
         }
         selectedTemplate = tmpl
     }
 
-    // MARK: - Helpers
-    private func loadTemplate(_ name: String) -> FormTemplate? {
+    // MARK: - Loader (robust)
+    /// Loads a template by its `id` field, regardless of filename.
+    private func loadTemplate(byId id: String) -> FormTemplate? {
         let bundle = Bundle.main
-        let url = bundle.url(forResource: name, withExtension: "json", subdirectory: "Templates")
-              ?? bundle.url(forResource: name, withExtension: "json")
-        guard let url, let data = try? Data(contentsOf: url) else { return nil }
+
+        // Fast path: try exact filename "id.json" in Templates/ then bundle root
+        if let direct = bundle.url(forResource: id, withExtension: "json", subdirectory: "Templates")
+            ?? bundle.url(forResource: id, withExtension: "json") {
+            if let tmpl = decodeTemplate(at: direct) {
+                print("✅ Loaded template by filename: \(direct.lastPathComponent)")
+                return tmpl
+            } else {
+                print("⚠️ Found file but failed to decode: \(direct.lastPathComponent)")
+            }
+        } else {
+            print("ℹ️ Direct file '\(id).json' not found. Scanning bundle for matching id…")
+        }
+
+        // Robust path: scan Templates/ dir, then bundle root, and match JSON `id`
+        if let templatesDir = bundle.url(forResource: "Templates", withExtension: nil),
+           let matched = scanDirectory(templatesDir, matchId: id) {
+            return matched
+        }
+        if let bundleRoot = bundle.resourceURL,
+           let matched = scanDirectory(bundleRoot, matchId: id) {
+            return matched
+        }
+
+        print("❌ No template with id '\(id)' found in bundle.")
+        return nil
+    }
+
+    /// Scans a directory for *.json files, decodes `id` cheaply, and returns the full template if ids match.
+    private func scanDirectory(_ directory: URL, matchId: String) -> FormTemplate? {
+        let fm = FileManager.default
+        guard let items = try? fm.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil) else { return nil }
+
+        for url in items where url.pathExtension.lowercased() == "json" {
+            // Cheap pre-pass: only decode the "id" field
+            struct Probe: Decodable { let id: String? }
+            guard
+                let data = try? Data(contentsOf: url),
+                let probe = try? JSONDecoder().decode(Probe.self, from: data),
+                probe.id == matchId
+            else { continue }
+
+            if let tmpl = try? JSONDecoder().decode(FormTemplate.self, from: data) {
+                print("✅ Matched template id '\(matchId)' at \(url.lastPathComponent)")
+                return tmpl
+            } else {
+                print("⚠️ Matched id but failed full decode at \(url.lastPathComponent)")
+            }
+        }
+        return nil
+    }
+
+    private func decodeTemplate(at url: URL) -> FormTemplate? {
+        guard let data = try? Data(contentsOf: url) else { return nil }
         return try? JSONDecoder().decode(FormTemplate.self, from: data)
     }
 
+    // MARK: - UI helpers
     private func title(for id: String) -> String {
         switch id {
         case "resolution.distribution.v1":        return "Distribution Authorization"

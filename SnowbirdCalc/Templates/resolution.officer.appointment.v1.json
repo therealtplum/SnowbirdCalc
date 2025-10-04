@@ -4,12 +4,9 @@
   "version": 2,
   "typeTag": "GOV",
   "fileNamePattern": "{{resolutionId}}.pdf",
-
   "fields": [
     { "id": "date", "label": "Resolution Date", "type": "date", "required": true },
-
     { "id": "entity", "label": "Entity", "type": "entity", "required": true },
-
     { "id": "officerName", "label": "Officer Name", "type": "text", "required": true },
 
     {
