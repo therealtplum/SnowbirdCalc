@@ -100,20 +100,56 @@ extension DynamicFormView {
 
     // ✅ Writes today's date back on first read, so the model is never nil
     fileprivate func dateField(_ field: FormTemplate.Field) -> some View {
-        let binding = Binding<Date>(
-            get: {
-                if let iso = values[field.id] as? String, let d = dateFromISO(iso) {
-                    return d
-                }
-                let today = Calendar.current.startOfDay(for: Date())
-                values[field.id] = isoDate(today)
-                return today
-            },
-            set: { values[field.id] = isoDate($0) }
-        )
+        let isRequired = field.required ?? false
+
+        // Helper that reads/writes ISO in `values[field.id]`
+        func dateBinding() -> Binding<Date> {
+            Binding<Date>(
+                get: {
+                    if let iso = values[field.id] as? String, let d = dateFromISO(iso) {
+                        return d
+                    }
+                    // If required, seed to today on first read.
+                    let today = Calendar.current.startOfDay(for: Date())
+                    if isRequired { values[field.id] = isoDate(today) }
+                    return today
+                },
+                set: { values[field.id] = isoDate($0) }
+            )
+        }
+
         return Section(header: Text(field.label)) {
-            DatePicker("", selection: binding, displayedComponents: [.date])
-                .datePickerStyle(.compact)
+            if isRequired {
+                // Required date: always has a value; seed to today if empty
+                DatePicker("", selection: dateBinding(), displayedComponents: [.date])
+                    .datePickerStyle(.compact)
+            } else {
+                // Optional date: user can choose to include or not
+                let hasDate = Binding<Bool>(
+                    get: { values[field.id] != nil },
+                    set: { include in
+                        if include {
+                            // If turning on with no current value, seed once to today
+                            if values[field.id] == nil {
+                                let today = Calendar.current.startOfDay(for: Date())
+                                values[field.id] = isoDate(today)
+                            }
+                        } else {
+                            // Clear to nil to truly have "no end date"
+                            values[field.id] = nil
+                        }
+                    }
+                )
+
+                Toggle("Include \(field.label)", isOn: hasDate)
+
+                if hasDate.wrappedValue {
+                    DatePicker("", selection: dateBinding(), displayedComponents: [.date])
+                        .datePickerStyle(.compact)
+                } else {
+                    Text("No \(field.label.lowercased())").foregroundStyle(.secondary)
+                }
+            }
         }
     }
 
