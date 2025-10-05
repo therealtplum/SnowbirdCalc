@@ -1,7 +1,9 @@
 import SwiftUI
+import UIKit
 
 struct OverviewView: View {
     @EnvironmentObject var vm: AppViewModel
+    @State private var showIconPicker = false   // ← NEW
 
     var body: some View {
         ScrollView {
@@ -115,6 +117,23 @@ struct OverviewView: View {
             .padding(16)
         }
         .navigationTitle("Overview")
+        .toolbar { // ← NEW
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Button {
+                        showIconPicker = true
+                    } label: {
+                        Label("Change logo", systemImage: "app.badge")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                        .imageScale(.large)
+                }
+            }
+        }
+        .sheet(isPresented: $showIconPicker) { // ← NEW
+            AppIconPickerView()
+        }
     }
 }
 
@@ -141,6 +160,7 @@ private func pct(_ x: Double) -> String {
 func dollar(_ value: Double) -> String {
     let formatter = NumberFormatter()
     formatter.numberStyle = .currency
-    formatter.locale = Locale(identifier: "en_US") // or whatever locale
+    formatter.locale = Locale(identifier: "en_US")
+    formatter.maximumFractionDigits = 0 // <- your previous ask for round dollars
     return formatter.string(from: NSNumber(value: value)) ?? "$0"
 }

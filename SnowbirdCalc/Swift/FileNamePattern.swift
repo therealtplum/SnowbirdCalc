@@ -2,7 +2,7 @@ import Foundation
 
 public final class FileNamePattern {
     public static func render(_ pattern: String, values: [String:Any]) -> String {
-        var bag = ValuesBag(values)
+        let bag = ValuesBag(values)
         var s = pattern
         let regex = try! NSRegularExpression(pattern: #"\{\{\s*([^\}]+)\s*\}\}"#, options: [])
         let matches = regex.matches(in: s, options: [], range: NSRange(s.startIndex..., in: s)).reversed()

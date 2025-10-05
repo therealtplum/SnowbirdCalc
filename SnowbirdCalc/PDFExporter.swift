@@ -97,11 +97,18 @@ fileprivate struct ResolutionDocumentView: View {
 // MARK: - Helpers
 fileprivate func renderViewToImage<V: View>(view: V) -> UIImage? {
     let renderer = ImageRenderer(content: view)
-    renderer.scale = UIScreen.main.scale
+
+    // Get the scale from the current active scene (modern approach)
+    let scale = (UIApplication.shared.connectedScenes
+        .compactMap { ($0 as? UIWindowScene)?.screen.scale }
+        .first) ?? 2.0
+    renderer.scale = scale
+
     // Prefer non-opaque so letterhead PNG with transparency looks right
     if #available(iOS 17.0, *) {
         renderer.isOpaque = false
     }
+
     return renderer.uiImage
 }
 

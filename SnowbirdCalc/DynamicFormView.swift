@@ -501,7 +501,7 @@ extension DynamicFormView {
         // single-select signer convenience keys
         injectSignerValuesForTemplates(into: &values)
 
-        var bag = ValuesBag(values)
+        let bag = ValuesBag(values)
         let engine = MustacheLite()
 
         var tbag = bag
@@ -945,8 +945,8 @@ fileprivate struct PinVerifySheet: View {
                 Section("Verify \(signerName)") {
                     SecureField("4-digit PIN", text: $pin)
                         .keyboardType(.numberPad)
-                        .onChange(of: pin) { new in
-                            pin = String(new.filter(\.isNumber).prefix(4))
+                        .onChange(of: pin) { _, newValue in
+                            pin = String(newValue.filter(\.isNumber).prefix(4))
                         }
                         .multilineTextAlignment(.center)
                 }

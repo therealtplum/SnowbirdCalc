@@ -96,7 +96,7 @@ struct BunnyEggView: View {
             let emoji = isEgg ? ["🥚","🐣","🌸"].randomElement()! : ["🥕","🥕","🥕","🍀"].randomElement()!
             let size: CGFloat = isEgg ? CGFloat.random(in: 18...24) : CGFloat.random(in: 18...22)
             let pos = CGPoint(x: x + CGFloat.random(in: 20...80), y: 40 + CGFloat.random(in: -6...6))
-            var drop = Drop(emoji: emoji, position: pos, size: size, scale: 0.6, opacity: 0)
+            let drop = Drop(emoji: emoji, position: pos, size: size, scale: 0.6, opacity: 0)
             drops.append(drop)
             let idx = drops.count - 1
             withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
@@ -229,20 +229,22 @@ private struct ConfettiBurstView: View {
     @State private var progress: Double = 0
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: 1.0/60.0)) { timeline in
-            let now = timeline.date.timeIntervalSince1970
+        TimelineView(.animation(minimumInterval: 1.0 / 60.0)) { timeline in
+            let _ = timeline.date.timeIntervalSince1970
             ZStack {
                 ForEach(burst.particles) { p in
                     ConfettiPiece(p: p, origin: burst.origin, t: progress)
                 }
             }
-            .onChange(of: timeline.date) { _ in
+            .onChange(of: timeline.date) {
                 progress += 1.0 / 60.0
             }
         }
         .onAppear {
             // Auto remove after the longest particle lifetime
-            DispatchQueue.main.asyncAfter(deadline: .now() + (burst.particles.map(\.lifetime).max() ?? 1.2) + 0.2) {
+            DispatchQueue.main.asyncAfter(
+                deadline: .now() + (burst.particles.map(\.lifetime).max() ?? 1.2) + 0.2
+            ) {
                 // no-op; the parent view prunes old bursts on dismiss
             }
         }
