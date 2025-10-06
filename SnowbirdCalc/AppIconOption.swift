@@ -80,6 +80,7 @@ struct AppIconPickerView: View {
         .init(iconKey: "AppIcon-Tech",      displayName: "Tech",      previewAssetName: "AppIconPreview-Tech"),
         .init(iconKey: "AppIcon-Royalties", displayName: "Royalties", previewAssetName: "AppIconPreview-Royalties"),
         .init(iconKey: "AppIcon-Markets",   displayName: "Markets",   previewAssetName: "AppIconPreview-Markets"),
+        .init(iconKey: "AppIcon-Foundation",   displayName: "Foundation",   previewAssetName: "AppIconPreview-Foundation"),
     ]
 
     // Adaptive grid for nice wrapping
