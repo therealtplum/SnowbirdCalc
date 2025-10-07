@@ -4,30 +4,30 @@ struct MainTabView: View {
     @EnvironmentObject var vm: AppViewModel
     @State private var selected: Tab = .overview
 
-    enum Tab: Hashable { case overview, scenarios, capital, learn, forms }
+    enum Tab: Hashable { case overview, utilities, capital, learn, forms }
 
     var body: some View {
         TabView(selection: $selected) {
             // OVERVIEW
             NavigationStack {
                 OverviewView()
-                    .environmentObject(vm)          // ★ ensure vm flows in
+                    .environmentObject(vm)
             }
             .tabItem { Label("Overview", systemImage: "rectangle.3.offgrid") }
             .tag(Tab.overview)
 
-            // SCENARIOS
+            // UTILITIES (contains Scenarios + future tools)
             NavigationStack {
-                ScenarioListView()
-                    .environmentObject(vm)          // ★
+                UtilitiesView()
+                    .environmentObject(vm)
             }
-            .tabItem { Label("Scenarios", systemImage: "list.bullet.rectangle") }
-            .tag(Tab.scenarios)
+            .tabItem { Label("Utilities", systemImage: "wrench.and.screwdriver") }
+            .tag(Tab.utilities)
 
             // CAPITAL
             NavigationStack {
                 CapitalView()
-                    .environmentObject(vm)          // ★
+                    .environmentObject(vm)
             }
             .tabItem { Label("Capital", systemImage: "banknote") }
             .tag(Tab.capital)
@@ -35,15 +35,15 @@ struct MainTabView: View {
             // FORMS
             NavigationStack {
                 FormsRootView()
-                    .environmentObject(vm)          // optional, if Forms needs vm
+                    .environmentObject(vm)
             }
             .tabItem { Label("Forms", systemImage: "doc.text") }
             .tag(Tab.forms)
-            
+
             // LEARN
             NavigationStack {
                 LearnView()
-                    .environmentObject(vm)          // ★
+                    .environmentObject(vm)
             }
             .tabItem { Label("Learn", systemImage: "book") }
             .tag(Tab.learn)
