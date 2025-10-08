@@ -25,6 +25,16 @@ struct UtilitiesView: View {
                 .buttonStyle(.plain)
 
                 // EXAMPLES OF FUTURE UTILITIES (placeholders)
+                NavigationLink {
+                    MineralRightsView()
+                } label: {
+                    UtilityTile(
+                        title: "Mineral Rights",
+                        subtitle: "Find and evaluate",
+                        systemImage: "hammer"
+                    )
+                }
+                .buttonStyle(.plain)
                 UtilityTile(
                     title: "Calculator",
                     subtitle: "Quick math",

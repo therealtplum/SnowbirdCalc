@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		C442DDD82E94954200572C94 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = C442DDD72E94954200572C94 /* SwiftSoup */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		C42020AB2E8B61E4008A447E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C442DDD82E94954200572C94 /* SwiftSoup in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +117,7 @@
 			);
 			name = SnowbirdCalc;
 			packageProductDependencies = (
+				C442DDD72E94954200572C94 /* SwiftSoup */,
 			);
 			productName = SnowbirdCalc;
 			productReference = C420209D2E8B61E3008A447E /* SnowbirdCalc.app */;
@@ -196,6 +202,9 @@
 			);
 			mainGroup = C42020942E8B61E3008A447E;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				C442DDD62E94954200572C94 /* XCRemoteSwiftPackageReference "SwiftSoup" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C420209E2E8B61E3008A447E /* Products */;
 			projectDirPath = "";
@@ -629,6 +638,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C442DDD62E94954200572C94 /* XCRemoteSwiftPackageReference "SwiftSoup" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/scinfu/SwiftSoup";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.11.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C442DDD72E94954200572C94 /* SwiftSoup */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C442DDD62E94954200572C94 /* XCRemoteSwiftPackageReference "SwiftSoup" */;
+			productName = SwiftSoup;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = C42020952E8B61E3008A447E /* Project object */;
 }
