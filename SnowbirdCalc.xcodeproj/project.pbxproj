@@ -33,20 +33,42 @@
 		C42020B42E8B61E4008A447E /* SnowbirdCalcUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SnowbirdCalcUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		C442DE8A2E98803400572C94 /* Exceptions for "SnowbirdCalc" folder in "SnowbirdCalc" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Tests/SnowbirdCalcTests/SnowbirdCalcTests.swift,
+				Tests/SnowbirdCalcUITests/SnowbirdCalcUITests.swift,
+				Tests/SnowbirdCalcUITests/SnowbirdCalcUITestsLaunchTests.swift,
+			);
+			target = C420209C2E8B61E3008A447E /* SnowbirdCalc */;
+		};
+		C442DE8B2E98803400572C94 /* Exceptions for "SnowbirdCalc" folder in "SnowbirdCalcTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Tests/SnowbirdCalcTests/SnowbirdCalcTests.swift,
+			);
+			target = C42020A92E8B61E4008A447E /* SnowbirdCalcTests */;
+		};
+		C442DE8C2E98803400572C94 /* Exceptions for "SnowbirdCalc" folder in "SnowbirdCalcUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Tests/SnowbirdCalcUITests/SnowbirdCalcUITests.swift,
+				Tests/SnowbirdCalcUITests/SnowbirdCalcUITestsLaunchTests.swift,
+			);
+			target = C42020B32E8B61E4008A447E /* SnowbirdCalcUITests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		C420209F2E8B61E3008A447E /* SnowbirdCalc */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C442DE8A2E98803400572C94 /* Exceptions for "SnowbirdCalc" folder in "SnowbirdCalc" target */,
+				C442DE8B2E98803400572C94 /* Exceptions for "SnowbirdCalc" folder in "SnowbirdCalcTests" target */,
+				C442DE8C2E98803400572C94 /* Exceptions for "SnowbirdCalc" folder in "SnowbirdCalcUITests" target */,
+			);
 			path = SnowbirdCalc;
-			sourceTree = "<group>";
-		};
-		C42020AD2E8B61E4008A447E /* SnowbirdCalcTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = SnowbirdCalcTests;
-			sourceTree = "<group>";
-		};
-		C42020B72E8B61E4008A447E /* SnowbirdCalcUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = SnowbirdCalcUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -81,8 +103,6 @@
 			isa = PBXGroup;
 			children = (
 				C420209F2E8B61E3008A447E /* SnowbirdCalc */,
-				C42020AD2E8B61E4008A447E /* SnowbirdCalcTests */,
-				C42020B72E8B61E4008A447E /* SnowbirdCalcUITests */,
 				C420209E2E8B61E3008A447E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -136,9 +156,6 @@
 			dependencies = (
 				C42020AC2E8B61E4008A447E /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				C42020AD2E8B61E4008A447E /* SnowbirdCalcTests */,
-			);
 			name = SnowbirdCalcTests;
 			packageProductDependencies = (
 			);
@@ -158,9 +175,6 @@
 			);
 			dependencies = (
 				C42020B62E8B61E4008A447E /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				C42020B72E8B61E4008A447E /* SnowbirdCalcUITests */,
 			);
 			name = SnowbirdCalcUITests;
 			packageProductDependencies = (
