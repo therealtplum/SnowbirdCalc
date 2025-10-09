@@ -35,6 +35,17 @@ struct UtilitiesView: View {
                     )
                 }
                 .buttonStyle(.plain)
+                
+                NavigationLink {
+                    ResearchListView()
+                } label: {
+                    UtilityTile(
+                        title: "Research",
+                        subtitle: "Internal memos",
+                        systemImage: "doc.text.magnifyingglass"
+                    )
+                }
+                
                 UtilityTile(
                     title: "Calculator",
                     subtitle: "Quick math",
