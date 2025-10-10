@@ -30,14 +30,3 @@ public struct ResearchReport: Identifiable, Hashable, Codable {
         self.fileURL = fileURL
     }
 }
-
-/// Optional sidecar metadata that sits next to each PDF.
-/// File name matches the PDF's base name (e.g. `Energy-Q3-2025.pdf` -> `Energy-Q3-2025.json`)
-struct ResearchSidecar: Codable {
-    let title: String?
-    let summary: String?
-    /// ISO8601 `"2025-09-30"` or full datetime. If omitted, we fall back to file date.
-    let publishedAt: String?
-    /// e.g. ["energy", "royalties"]
-    let tags: [String]?
-}

@@ -79,7 +79,7 @@ public struct ResearchListView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         Button {
-                            Task { await lib.reload() }
+                            Task { lib.reload() }
                         } label: {
                             Label("Rescan Library", systemImage: "arrow.clockwise")
                         }
