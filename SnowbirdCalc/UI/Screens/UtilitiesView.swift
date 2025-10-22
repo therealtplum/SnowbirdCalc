@@ -46,6 +46,17 @@ struct UtilitiesView: View {
                     )
                 }
                 
+                NavigationLink {
+                    QuickContactView()
+                } label: {
+                    UtilityTile(
+                        title: "Quick Contact",
+                        subtitle: "Share business card",
+                        systemImage: "qrcode"
+                    )
+                }
+                .buttonStyle(.plain)
+                
                 UtilityTile(
                     title: "Calculator",
                     subtitle: "Quick math",
