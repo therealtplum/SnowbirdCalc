@@ -1,87 +1,216 @@
 import SwiftUI
+import UniformTypeIdentifiers
+
+struct UtilityItem: Identifiable, Hashable, Equatable, Transferable {
+    enum Destination: Hashable {
+        case scenarios
+        case mineralRights
+        case research
+        case quickContact
+        case none
+    }
+
+    let id: UUID
+    var title: String
+    var subtitle: String
+    var systemImage: String
+    var destination: Destination
+
+    static var transferRepresentation: some TransferRepresentation {
+        DataRepresentation(contentType: .json) { item in
+            try JSONEncoder().encode(TransferProxy(from: item))
+        } importing: { data in
+            let proxy = try JSONDecoder().decode(TransferProxy.self, from: data)
+            return proxy.toItem()
+        }
+    }
+
+    private struct TransferProxy: Codable {
+        let id: UUID
+        let title: String
+        let subtitle: String
+        let systemImage: String
+        let destination: DestinationProxy
+
+        init(from item: UtilityItem) {
+            self.id = item.id
+            self.title = item.title
+            self.subtitle = item.subtitle
+            self.systemImage = item.systemImage
+            self.destination = DestinationProxy(from: item.destination)
+        }
+
+        func toItem() -> UtilityItem {
+            UtilityItem(
+                id: id,
+                title: title,
+                subtitle: subtitle,
+                systemImage: systemImage,
+                destination: destination.toDestination()
+            )
+        }
+    }
+
+    private enum DestinationProxy: String, Codable {
+        case scenarios
+        case mineralRights
+        case research
+        case quickContact
+        case none
+
+        init(from destination: Destination) {
+            switch destination {
+            case .scenarios: self = .scenarios
+            case .mineralRights: self = .mineralRights
+            case .research: self = .research
+            case .quickContact: self = .quickContact
+            case .none: self = .none
+            }
+        }
+
+        func toDestination() -> UtilityItem.Destination {
+            switch self {
+            case .scenarios: return .scenarios
+            case .mineralRights: return .mineralRights
+            case .research: return .research
+            case .quickContact: return .quickContact
+            case .none: return .none
+            }
+        }
+    }
+
+    static func == (lhs: UtilityItem, rhs: UtilityItem) -> Bool { lhs.id == rhs.id }
+    func hash(into hasher: inout Hasher) { hasher.combine(id) }
+}
 
 struct UtilitiesView: View {
     @EnvironmentObject var vm: AppViewModel
 
-    // Adaptive grid that looks good on iPhone + iPad
-    private let columns = [
+    private let columns: [GridItem] = [
         GridItem(.adaptive(minimum: 140, maximum: 220), spacing: 16)
     ]
 
+    @State private var items: [UtilityItem] = []
+    @State private var draggingItem: UtilityItem?
+
     var body: some View {
         ScrollView {
-            LazyVGrid(columns: columns, spacing: 16) {
-                // SCENARIOS (active)
-                NavigationLink {
-                    ScenarioListView()
-                        .environmentObject(vm)
-                } label: {
-                    UtilityTile(
-                        title: "Scenarios",
-                        subtitle: "Model outcomes",
-                        systemImage: "list.bullet.rectangle"
-                    )
-                }
-                .buttonStyle(.plain)
-
-                // EXAMPLES OF FUTURE UTILITIES (placeholders)
-                NavigationLink {
-                    MineralRightsView()
-                } label: {
-                    UtilityTile(
-                        title: "Mineral Rights",
-                        subtitle: "Find and evaluate",
-                        systemImage: "hammer"
-                    )
-                }
-                .buttonStyle(.plain)
-                
-                NavigationLink {
-                    ResearchListView()
-                } label: {
-                    UtilityTile(
-                        title: "Research",
-                        subtitle: "Internal memos",
-                        systemImage: "doc.text.magnifyingglass"
-                    )
-                }
-                
-                NavigationLink {
-                    QuickContactView()
-                } label: {
-                    UtilityTile(
-                        title: "Quick Contact",
-                        subtitle: "Share business card",
-                        systemImage: "qrcode"
-                    )
-                }
-                .buttonStyle(.plain)
-                
-                UtilityTile(
-                    title: "Calculator",
-                    subtitle: "Quick math",
-                    systemImage: "function"
-                )
-                .opacity(0.45)
-
-                UtilityTile(
-                    title: "Exports",
-                    subtitle: "PDF / DOCX",
-                    systemImage: "square.and.arrow.up"
-                )
-                .opacity(0.45)
-
-                UtilityTile(
-                    title: "Logo & Theme",
-                    subtitle: "App appearance",
-                    systemImage: "paintpalette"
-                )
-                .opacity(0.45)
-            }
-            .padding(16)
+            grid
+                .padding(16)
         }
         .navigationTitle("Utilities")
         .background(Color(.systemGroupedBackground))
+        .onAppear(perform: buildInitialItemsIfNeeded)
+    }
+
+    private var grid: some View {
+        LazyVGrid(columns: columns, spacing: 16) {
+            ForEach(items) { item in
+                tile(for: item)
+            }
+        }
+    }
+
+    private func buildInitialItemsIfNeeded() {
+        if items.isEmpty {
+            items = [
+                UtilityItem(
+                    id: UUID(),
+                    title: "Scenarios",
+                    subtitle: "Model outcomes",
+                    systemImage: "list.bullet.rectangle",
+                    destination: .scenarios
+                ),
+                UtilityItem(
+                    id: UUID(),
+                    title: "Mineral Rights",
+                    subtitle: "Find and evaluate",
+                    systemImage: "hammer",
+                    destination: .mineralRights
+                ),
+                UtilityItem(
+                    id: UUID(),
+                    title: "Research",
+                    subtitle: "Internal memos",
+                    systemImage: "doc.text.magnifyingglass",
+                    destination: .research
+                ),
+                UtilityItem(
+                    id: UUID(),
+                    title: "Quick Contact",
+                    subtitle: "Share business card",
+                    systemImage: "qrcode",
+                    destination: .quickContact
+                ),
+                UtilityItem(
+                    id: UUID(),
+                    title: "Calculator",
+                    subtitle: "Quick math",
+                    systemImage: "function",
+                    destination: .none
+                ),
+                UtilityItem(
+                    id: UUID(),
+                    title: "Exports",
+                    subtitle: "PDF / DOCX",
+                    systemImage: "square.and.arrow.up",
+                    destination: .none
+                ),
+                UtilityItem(
+                    id: UUID(),
+                    title: "Logo & Theme",
+                    subtitle: "App appearance",
+                    systemImage: "paintpalette",
+                    destination: .none
+                )
+            ]
+        }
+    }
+
+    @ViewBuilder
+    private func tile(for item: UtilityItem) -> some View {
+        UtilityItemCell(item: item)
+            .overlay(overlayFor(item))
+            .onLongPressGesture(minimumDuration: 0.01) { draggingItem = item }
+            .draggable(item) {
+                UtilityTile(
+                    title: item.title,
+                    subtitle: item.subtitle,
+                    systemImage: item.systemImage
+                )
+                .frame(width: 160, height: 140)
+            }
+            .dropDestination(for: UtilityItem.self) { droppedItems, _ in
+                handleDrop(droppedItems: droppedItems, over: item)
+            } isTargeted: { _ in }
+            .onChange(of: items) { _, _ in
+                draggingItem = nil
+            }
+    }
+
+    @ViewBuilder
+    private func overlayFor(_ item: UtilityItem) -> some View {
+        if draggingItem == item {
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .strokeBorder(.tint, lineWidth: 2)
+        } else {
+            EmptyView()
+        }
+    }
+
+    @discardableResult
+    private func handleDrop(droppedItems: [UtilityItem], over target: UtilityItem) -> Bool {
+        guard let source = droppedItems.first,
+              let fromIndex = items.firstIndex(of: source),
+              let toIndex = items.firstIndex(of: target) else { return false }
+
+        withAnimation(.spring(response: 0.25, dampingFraction: 0.9)) {
+            if fromIndex != toIndex {
+                let moved = items.remove(at: fromIndex)
+                items.insert(moved, at: toIndex)
+            }
+        }
+        return true
     }
 }
 
@@ -137,7 +266,62 @@ struct UtilityTile: View {
     }
 }
 
-// MARK: - Preview
+struct UtilityItemCell: View {
+    @EnvironmentObject var vm: AppViewModel
+    let item: UtilityItem
+
+    var body: some View {
+        Group {
+            switch item.destination {
+            case .scenarios:
+                NavigationLink {
+                    ScenarioListView().environmentObject(vm)
+                } label: {
+                    UtilityTile(
+                        title: item.title,
+                        subtitle: item.subtitle,
+                        systemImage: item.systemImage
+                    )
+                }
+                .buttonStyle(.plain)
+            case .mineralRights:
+                NavigationLink { MineralRightsView() } label: {
+                    UtilityTile(
+                        title: item.title,
+                        subtitle: item.subtitle,
+                        systemImage: item.systemImage
+                    )
+                }
+                .buttonStyle(.plain)
+            case .research:
+                NavigationLink { ResearchListView() } label: {
+                    UtilityTile(
+                        title: item.title,
+                        subtitle: item.subtitle,
+                        systemImage: item.systemImage
+                    )
+                }
+                .buttonStyle(.plain)
+            case .quickContact:
+                NavigationLink { QuickContactView() } label: {
+                    UtilityTile(
+                        title: item.title,
+                        subtitle: item.subtitle,
+                        systemImage: item.systemImage
+                    )
+                }
+                .buttonStyle(.plain)
+            case .none:
+                UtilityTile(
+                    title: item.title,
+                    subtitle: item.subtitle,
+                    systemImage: item.systemImage
+                )
+                .opacity(0.45)
+            }
+        }
+    }
+}
 
 #Preview {
     NavigationStack {
