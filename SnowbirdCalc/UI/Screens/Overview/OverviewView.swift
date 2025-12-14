@@ -30,11 +30,11 @@ struct OverviewView: View {
                             // High-level rates / settings
                             Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 8) {
                                 GridRow {
-                                    LabelValue("Employee Deferral", dollar(s.employeeDeferral))
-                                    LabelValue("Employer Match", pct(s.employerPct))
+                                    LabelValue("Employee Deferral", Formatters.dollar(s.employeeDeferral))
+                                    LabelValue("Employer Match", Formatters.percent(s.employerPct))
                                 }
-                                GridRow { LabelValue("Ordinary Rate",       pct(s.ordinaryRate))     ; LabelValue("LTCG Rate",        pct(s.ltcgRate)) }
-                                GridRow { LabelValue("NIIT Rate",           pct(s.niitRate))         ; LabelValue("Subsidiaries",     "\(s.subs.count)") }
+                                GridRow { LabelValue("Ordinary Rate",       Formatters.percent(s.ordinaryRate))     ; LabelValue("LTCG Rate",        Formatters.percent(s.ltcgRate)) }
+                                GridRow { LabelValue("NIIT Rate",           Formatters.percent(s.niitRate))         ; LabelValue("Subsidiaries",     "\(s.subs.count)") }
                             }
                         }
                     } else {
@@ -85,7 +85,7 @@ struct OverviewView: View {
                                 HStack(alignment: .firstTextBaseline) {
                                     VStack(alignment: .leading, spacing: 4) {
                                         Text(s.name).fontWeight(.medium)
-                                        Text("\(s.subs.count) subsidiaries • Deferral \(dollar(s.employeeDeferral))")
+                                        Text("\(s.subs.count) subsidiaries • Deferral \(Formatters.dollar(s.employeeDeferral))")
                                             .font(.caption)
                                             .foregroundStyle(.secondary)
                                     }
@@ -150,17 +150,5 @@ private struct LabelValue: View {
     }
 }
 
-// Percent helper that doesn’t explode if you feed 0–1 or 0–100
-private func pct(_ x: Double) -> String {
-    // Heuristic: if value <= 1 treat as 0–1, else assume 0–100
-    let v = (x <= 1.0) ? x : (x / 100.0)
-    return v.formatted(.percent.precision(.fractionLength(1)))
-}
-
-func dollar(_ value: Double) -> String {
-    let formatter = NumberFormatter()
-    formatter.numberStyle = .currency
-    formatter.locale = Locale(identifier: "en_US")
-    formatter.maximumFractionDigits = 0 // <- your previous ask for round dollars
-    return formatter.string(from: NSNumber(value: value)) ?? "$0"
-}
+// Formatters are now in UI/Components/Formatters.swift
+// Use Formatters.percent() and Formatters.dollar() instead

@@ -1,9 +1,12 @@
 import Foundation
 import SwiftUI
 import Combine
+import os.log
 
 @MainActor
 final class AppViewModel: ObservableObject {
+    
+    private static let logger = Logger(subsystem: "com.snowbirdcalc", category: "AppViewModel")
 
     // MARK: Published state
     @Published var scenarios: [Scenario] { didSet { save() } }
@@ -11,16 +14,32 @@ final class AppViewModel: ObservableObject {
     @Published private(set) var outputs: [Scenario.ID: CalculatorOutput] = [:]
     @Published var store = PortfolioStore()
     @Published var router = AppRouter()
+    @Published var lastError: String?
 
     // MARK: Storage
     private let saveURL: URL
+    private var lastSavedScenarios: [Scenario] = []
+    private var lastSavedSelectedID: Scenario.ID?
 
     // MARK: Init / Load
     init() {
         let fm = FileManager.default
-        let docs = try! fm.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+        
+        // Safe file URL creation with fallback
+        guard let docs = try? fm.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true) else {
+            // Fallback to temporary directory if document directory fails
+            Self.logger.error("Failed to access document directory, using temporary directory")
+            self.saveURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("scenarios.json")
+            // Initialize with default scenario
+            self.scenarios = [Scenario()]
+            self.selectedID = self.scenarios.first?.id
+            recalcAll()
+            return
+        }
+        
         self.saveURL = docs.appendingPathComponent("scenarios.json")
 
+        // Load saved state with error handling
         if let data = try? Data(contentsOf: saveURL),
            let decoded = try? JSONDecoder().decode(SavedState.self, from: data) {
             self.scenarios = decoded.scenarios
@@ -30,11 +49,19 @@ final class AppViewModel: ObservableObject {
             } else {
                 self.selectedID = decoded.scenarios.first?.id
             }
+            Self.logger.info("Loaded \(decoded.scenarios.count) scenarios from disk")
         } else {
-            let initial = [Scenario()]         // your default initializer
+            // Default initializer if load fails
+            let initial = [Scenario()]
             self.scenarios = initial
             self.selectedID = initial.first?.id
+            Self.logger.info("Initialized with default scenario")
         }
+        
+        // Track initial state for change detection
+        lastSavedScenarios = scenarios
+        lastSavedSelectedID = selectedID
+        
         recalcAll()
     }
 
@@ -51,11 +78,24 @@ final class AppViewModel: ObservableObject {
         guard let id = selectedID,
               let idx = scenarios.firstIndex(where: { $0.id == id }) else { return }
         mutate(&scenarios[idx])
+        // Only recalculate the changed scenario
         outputs[id] = Calc.compute(scenarios[idx])
     }
 
     func addScenario(_ base: Scenario? = nil) {
         let new = base.map(withFreshIDs) ?? Scenario()
+        
+        // Validate scenario name
+        let trimmedName = new.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedName.isEmpty else {
+            Self.logger.warning("Attempted to add scenario with empty name, using default")
+            var validScenario = new
+            validScenario.name = "My Scenario"
+            scenarios.append(validScenario)
+            selectedID = validScenario.id
+            return
+        }
+        
         scenarios.append(new)
         selectedID = new.id
     }
@@ -82,14 +122,63 @@ final class AppViewModel: ObservableObject {
         for s in scenarios { new[s.id] = Calc.compute(s) }
         outputs = new
     }
+    
+    /// Recalculate only changed scenarios for better performance
+    private func recalcChanged() {
+        let lastSavedDict = Dictionary(uniqueKeysWithValues: lastSavedScenarios.map { ($0.id, $0) })
+        
+        // Recalculate all scenarios that have changed or are new
+        for scenario in scenarios {
+            if let lastSaved = lastSavedDict[scenario.id] {
+                // Scenario exists - only recalc if it changed
+                if scenario != lastSaved {
+                    outputs[scenario.id] = Calc.compute(scenario)
+                }
+            } else {
+                // New scenario - always recalc
+                outputs[scenario.id] = Calc.compute(scenario)
+            }
+        }
+        
+        // Remove outputs for deleted scenarios
+        let currentIDs = Set(scenarios.map(\.id))
+        outputs = outputs.filter { currentIDs.contains($0.key) }
+    }
 
     // MARK: Persistence
     private func save() {
-        let state = SavedState(scenarios: scenarios, selectedID: selectedID)
-        if let data = try? JSONEncoder().encode(state) {
-            try? data.write(to: saveURL)
+        let state = SavedState(scenarios: self.scenarios, selectedID: self.selectedID)
+        
+        do {
+            let data = try JSONEncoder().encode(state)
+            try data.write(to: saveURL, options: [.atomic])
+            
+            // Update last saved state for change detection
+            lastSavedScenarios = self.scenarios
+            lastSavedSelectedID = self.selectedID
+            
+            // Only recalc if scenarios actually changed
+            let scenariosChanged = self.scenarios.count != self.lastSavedScenarios.count || 
+                                  self.scenarios.contains { scenario in
+                                      guard let lastSaved = self.lastSavedScenarios.first(where: { $0.id == scenario.id }) else {
+                                          return true  // New scenario
+                                      }
+                                      return scenario != lastSaved
+                                  }
+            
+            if scenariosChanged || self.selectedID != self.lastSavedSelectedID {
+                recalcChanged()
+            }
+            
+            let scenarioCount = self.scenarios.count
+            Self.logger.debug("Successfully saved \(scenarioCount) scenarios")
+            lastError = nil
+        } catch {
+            Self.logger.error("Failed to save scenarios: \(error.localizedDescription, privacy: .public)")
+            lastError = "Failed to save: \(error.localizedDescription)"
+            // Still recalc even if save fails to keep UI in sync
+            recalcChanged()
         }
-        recalcAll()
     }
 
     private struct SavedState: Codable {
